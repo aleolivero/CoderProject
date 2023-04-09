@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container d-flex align-items-center flex-column mt-5">  
+
+
+    <table class="table table-striped table-hover shadow-lg bg-white rounded-3 w-100">
+        <thead>
+            <tr>
+                <th class="w-90 text-center" scope="col">Question</th>
+                <th class="w-10 text-center" scope="col">Correct Answer</th>
+            </tr>
+        
+        </thead>
+
+        <tbody>
+
+            {% for question in questions %}
+            <tr>
+                <td class="w-90 text-center">{{question.question}}</td>
+                <td class="w-10 text-center">{{question.correct_answer}}</td>              
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

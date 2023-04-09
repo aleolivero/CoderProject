@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container d-flex align-items-center flex-column mt-5">  
+
+    <form class="border border-light shadow-lg w-100 rounded-3 p-3"  action="" method="POST"> {% csrf_token %}
+
+        <div class="row mb-1 align-items-center justify-content-center">  
+            <label class="col-sm-1 col-form-label"></label>
+            <div class="col-sm-7 text-center">
+                <h1>Form Add Players</h1>
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_first_name">First Name:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="first_name" maxlength="100" required="" id="id_first_name">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_last_name">Last Name:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="last_name" maxlength="100" required="" id="id_last_name">
+            </div>      
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_date_birth">Birth:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="date_birth" id="id_date_birth">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_phone">Phone:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="phone" maxlength="100" required="" id="id_phone">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_adress">Adress:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="adress" maxlength="100" required="" id="id_adress">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_city">City:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="city" maxlength="100" required="" id="id_city">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_state">State:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="state" maxlength="100" required="" id="id_state">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_country">Country:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="country" maxlength="100" required="" id="id_country">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-1 col-form-label" for="id_dni">DNI:</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" name="dni" maxlength="100" required="" id="id_dni">
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">  
+            <label class="col-sm-1 col-form-label"></label>
+            <div class="col-sm-7">
+                <input class="btn btn-primary w-100" type="submit", value="ADD">
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
