@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+
+
+{{form.question}}
+
+<div class="container d-flex align-items-center flex-column mt-5">  
+
+    <form class="border border-light shadow-lg w-100 rounded-3 p-3"  action="" method="POST"> {% csrf_token %}
+
+        <div class="row mb-1 align-items-center justify-content-center">  
+            <label class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-6 text-center">
+                <h1>Form Add Answers</h1>
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-2 col-form-label" for="id_question">Question:</label>
+            <div class="col-sm-6">
+                {{form.question}}
+            </div>
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-2 col-form-label" for="id_answer">Answer:</label>
+            <div class="col-sm-6">
+                {{form.answer}}
+            </div>      
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">        
+            <label class="col-sm-2 col-form-label" for="id_correct_answer">Player:</label>
+            <div class="col-sm-6">
+                {{form.player}}
+            </div>      
+        </div>
+
+        <div class="row mb-1 align-items-center justify-content-center">  
+            <label class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-6">
+                <input class="btn btn-primary w-100" type="submit", value="ADD">
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

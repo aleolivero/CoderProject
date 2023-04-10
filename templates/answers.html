@@ -4,16 +4,40 @@
 {% block content %}
 
 
-<div class="container d-flex align-items-center flex-column mt-5">  
+<div class="container d-flex align-items-center flex-column mt-5 ">  
+    <form class="border border-light shadow-lg w-100 rounded-3 p-3 mb-3"  action="" method="POST"> {% csrf_token %}
+
+        <table class="table table-striped table-hover shadow-lg bg-white rounded-3 w-100">
+            <thead>
+                <tr>
+                    <th class="w-10 text-center" scope="col">Question</th>
+                    <th class="w-10 text-center" scope="col">Answer</th>
+                    <th class="w-10 text-center" scope="col">Player</th>
+                </tr>
+            
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="w-10 text-center"><input class="form-control" type="text" name="question" maxlength="100" id="id_question"></td>
+                    <td class="w-10 text-center"><input class="form-control" type="text" name="answer" maxlength="100" id="id_answer"></td>
+                    <td class="w-10 text-center"><input class="form-control" type="text" name="player" maxlength="100" id="id_player"></td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <tr>
+            <input class="btn btn-primary w-100" type="submit", value="SEARCH">
+        </tr>
+    </form>
 
 
-    <table class="table table-striped table-hover shadow-lg bg-white rounded-3 w-100">
+    <table class="table table-striped table-hover border border-light shadow-lg bg-white rounded-3 w-100">
         <thead>
             <tr>
-                <th class="w-80 text-center" scope="col">Question</th>
+                <th class="w-10 text-center" scope="col">Question</th>
                 <th class="w-10 text-center" scope="col">Answer</th>
                 <th class="w-10 text-center" scope="col">Player</th>
-            
+
             </tr>
         
         </thead>
@@ -22,15 +46,20 @@
 
             {% for answer in answers %}
             <tr>
-                <td class="w-80 text-center">{{answer.question}}</td>
-                <td class="w-10 text-center">{{answer.answer}}</td> 
-                <td class="w-10 text-center">{{answer.player}}</td>              
+                <td class="w-10 text-center">{{answer.question}}</td>
+                <td class="w-10 text-center">{{answer.answer}}</td>
+                <td class="w-10 text-center">{{answer.player}}</td>
+
             </tr>
             {% endfor %}
 
         </tbody>
 
     </table>
+
+    <tr>
+        <a class="btn btn-primary w-100" href="{% url 'answers_view' %}">RESET</a>
+    </tr>
 
 </div>
 

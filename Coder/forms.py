@@ -14,8 +14,26 @@ class FormPlayers(ModelForm):
             'city',
             'state', 
             'country', 
-            'dni',
         ]
 
-    # def __init__(self, *args, **kwargs):
-    #     super(FormPlayers, self).__init__(*args,**kwargs)
+class FormQuestions(ModelForm):
+    class Meta:
+        model = Questions
+        fields = [
+            'question', 
+            'correct_answer', 
+        ]
+
+class FormAnswers(ModelForm):
+    class Meta:
+        model = Answers
+        fields = [
+            'question', 
+            'answer',
+            'player', 
+        ]
+        widgets = {
+            'question': forms.Select(attrs={'class': 'form-control'}),
+            'player': forms.Select(attrs={'class': 'form-control'}),
+            'answer': forms.TextInput(attrs={'class': 'form-control'}),
+        }

@@ -3,4 +3,50 @@
 
 {% block content %}
 
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Trivia</h1>
+    <div class="row">
+        <div class="col-md-4 d-flex align-items-stretch">
+            <div class="card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Players</h5>
+                    <div class="d-flex justify-content-center mb-3">
+                        <i class="fas fa-users fa-3x"></i>
+                    </div>
+                    <p class="card-text">Visualiza y agrega jugadores en nuestra plataforma.</p>
+                    <a href="{% url 'players_view' %}" class="btn btn-primary mt-auto">View Players</a>
+                    <a href="{% url 'players_add' %}" class="btn btn-secondary mt-2">Add Players</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-stretch">
+            <div class="card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Questions</h5>
+                    <div class="d-flex justify-content-center mb-3">
+                        <i class="fas fa-question-circle fa-3x"></i>
+                    </div>
+                    <p class="card-text">Revisa todas las preguntas cargadas y agrega más si lo deseas.</p>
+                    <a href="{% url 'questions_view' %}" class="btn btn-primary mt-auto">View Questions</a>
+                    <a href="{% url 'questions_add' %}"class="btn btn-secondary mt-2">Add Questions</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-stretch">
+            <div class="card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Answers</h5>
+                    <div class="d-flex justify-content-center mb-3">
+                        <i class="fas fa-lightbulb fa-3x"></i>
+                    </div>
+                    <p class="card-text">Carga tus respuestas a las preguntas de trivia aquí.</p>
+                    <a href="{% url 'answers_view' %}" class="btn btn-primary mt-auto">View Answers</a>
+                    <a href="{% url 'answers_add' %}" class="btn btn-secondary mt-2">Add Answers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}
