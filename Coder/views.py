@@ -1,15 +1,23 @@
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, redirect
+from django.urls import reverse
 from .models import Players, Answers, Questions
-from .forms import FormPlayers, FormAnswers, FormQuestions
+from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm
 from django.db.models import Q
+from django.db.models.functions import Cast
+from django.db.models import DateField, CharField
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+@login_required
 def index(request):
     params = {}
 
     return render(request,'index.html',params)
 
+@login_required
 def players_view(request):
     params = {}
 
@@ -36,7 +44,7 @@ def players_view(request):
             state__icontains = _state,
             country__icontains = _country,
 
-        )
+        ).annotate(date_birth_str=Cast('date_birth', output_field=CharField()),)
 
         params['form'] = form
 
@@ -46,11 +54,12 @@ def players_view(request):
         
         form = FormPlayers()
         
-        params['players'] = Players.objects.all()
+        params['players'] = Players.objects.all().annotate(date_birth_str=Cast('date_birth', output_field=CharField()),)
         params['form'] = form
 
     return render(request,'players.html',params)
 
+@login_required
 def players_add(request):
     params = {}
 
@@ -70,7 +79,6 @@ def players_add(request):
             _city = form.cleaned_data['city']
             _state = form.cleaned_data['state']
             _country = form.cleaned_data['country']
-            _dni = form.cleaned_data['dni']
 
             _newPlayer = Players(first_name = _first_name, 
                                  last_name = _last_name, 
@@ -80,7 +88,6 @@ def players_add(request):
                                  city = _city,
                                  state = _state,
                                  country = _country,
-                                 dni = _dni,                              
                                 )
 
             _newPlayer.save()
@@ -104,6 +111,37 @@ def players_add(request):
 
         return render(request,'players_add.html',params)
 
+@login_required
+def players_edit(request, id):
+
+    form = FormPlayers(request.POST)
+    
+    if form.is_valid():
+        _player = Players.objects.get(id=id)
+        _player.first_name=form.cleaned_data['first_name']
+        _player.last_name=form.cleaned_data['last_name']
+        _player.date_birth=form.cleaned_data['date_birth']
+        _player.phone=form.cleaned_data['phone']
+        _player.adress=form.cleaned_data['adress']
+        _player.city=form.cleaned_data['city']
+        _player.state=form.cleaned_data['state']
+        _player.country=form.cleaned_data['country']
+        _player.save()
+
+
+    return redirect(reverse('players_view'))
+
+@login_required
+def players_delete(request,id):
+    
+    
+
+    player = Players.objects.get(id=id)
+    player = player.delete()
+    
+    return redirect(reverse('players_view'))
+
+@login_required
 def questions_view(request):
     params = {}
 
@@ -132,6 +170,7 @@ def questions_view(request):
 
     return render(request,'questions.html',params)
 
+@login_required
 def questions_add(request):
     params = {}
 
@@ -171,6 +210,7 @@ def questions_add(request):
 
         return render(request,'questions_add.html',params)
 
+@login_required
 def answers_view(request):
     params = {}
 
@@ -201,6 +241,7 @@ def answers_view(request):
 
     return render(request,'answers.html',params)
 
+@login_required
 def answers_add(request):
     params = {}
 
@@ -242,3 +283,83 @@ def answers_add(request):
 
         return render(request,'answers_add.html',params)
 
+def signin(request):
+    
+    if request.method == 'POST':
+        
+        params = {}
+
+        form = AuthenticationForm(request, data = request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+
+            _data = form.cleaned_data
+            
+            _username = _data['username']
+
+            _password = _data['password']
+
+            _user = authenticate(username=_username, password = _password)
+
+            if _user is not None:
+
+                login(request,_user)
+                
+                return redirect(reverse('index'))
+
+            else:
+                
+                params['message'] = 'User or password incorrect.'
+
+                return render(request, 'signin.html',params)
+        
+        else:
+            params['message'] = 'User or password incorrect.'
+
+            return render(request, 'signin.html',params)
+        
+    else:
+        
+        params = {}
+        
+        form = AuthenticationForm()
+        
+        params['form'] = form
+
+        return render(request,'signin.html', params)
+
+def signup(request):
+
+    if request.method == 'POST':
+        
+        params = {}
+
+        form = SignUpForm(request.POST)
+
+        params['form'] = form
+
+
+        if form.is_valid():
+
+            params['signup'] = True
+
+            form.save()
+
+            return render(request, 'index.html', params)
+
+        
+        else:
+
+            return render(request, 'signup.html',params)
+        
+    else:
+        
+        params = {}
+        
+        form = SignUpForm()
+        
+        params['form'] = form
+
+        return render(request,'signup.html', params)

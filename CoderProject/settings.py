@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #APPS
 
     'Coder.apps.CoderConfig',
+    'widget_tweaks',
 
 ]
 
@@ -134,3 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGOUT_REDIRECT_URL = '../'
+
+LOGIN_URL = '/Coder/signin'
