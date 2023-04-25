@@ -8,6 +8,8 @@ class FormPlayers(ModelForm):
     class Meta:
         model = Players
         fields = [
+            'user',
+            'image',
             'first_name', 
             'last_name', 
             'date_birth' ,
@@ -48,3 +50,8 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ['username','email','password1','password2']
         
+class FormEditUser(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['email','password1','password2','first_name','last_name']
+

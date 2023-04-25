@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 
 class Players(models.Model):
 
-    #user = models.OneToOneField(User,blank=False,null=True,on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='players')
     first_name = models.CharField(max_length=100, verbose_name="First Name")
     last_name = models.CharField(max_length=100, verbose_name="Last Name")
     date_birth = models.DateField(blank=True,null=True, verbose_name="Birth",)

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions
-from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm
+from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm, FormEditUser
 from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import DateField, CharField
@@ -66,11 +66,12 @@ def players_add(request):
     # User sends data to server
     if request.method == 'POST':
 
-        form = FormPlayers(request.POST)
+        form = FormPlayers(request.POST, request.FILES)
 
         #Data valid
         if form.is_valid():
 
+            _user = form.cleaned_data['user']  
             _first_name = form.cleaned_data['first_name']
             _last_name = form.cleaned_data['last_name']
             _date_birth = form.cleaned_data['date_birth']
@@ -80,14 +81,17 @@ def players_add(request):
             _state = form.cleaned_data['state']
             _country = form.cleaned_data['country']
 
-            _newPlayer = Players(first_name = _first_name, 
-                                 last_name = _last_name, 
-                                 date_birth = _date_birth,
-                                 phone = _phone,
-                                 adress = _adress,
-                                 city = _city,
-                                 state = _state,
-                                 country = _country,
+            _newPlayer = Players(
+                                user = _user,
+                                image = request.FILES['image'],
+                                first_name = _first_name, 
+                                last_name = _last_name, 
+                                date_birth = _date_birth,
+                                phone = _phone,
+                                adress = _adress,
+                                city = _city,
+                                state = _state,
+                                country = _country,
                                 )
 
             _newPlayer.save()
@@ -363,3 +367,48 @@ def signup(request):
         params['form'] = form
 
         return render(request,'signup.html', params)
+    
+@login_required
+def editProfile(request):
+
+    params = {}
+    user = request.user
+
+    if request.method == 'POST':
+        
+        form = FormEditUser(request.POST)
+
+        if form.is_valid():
+            
+            _user = form.cleaned_data
+            
+            user.email = _user['email']
+
+            user.password1 = _user['password1']
+
+            user.password2 = _user['password2']
+
+            user.firs_name = _user['first_name']
+
+            user.last_name = _user['last_name']
+
+            user.save()
+
+            return redirect(reverse('index'))
+
+        else:
+
+            return render(request,'editProfile.html', params)
+            
+    
+    else:
+        form = FormEditUser(instance=user)
+        
+        params['form'] = form
+        
+        return render(request,'editProfile.html', params)
+
+
+@login_required
+def editPlayer(request):
+    pass
