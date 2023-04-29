@@ -12,164 +12,31 @@
         <div class="row mb-3 align-items-center justify-content-center">  
 
             <div class="col-sm-8 text-center mt-3">
-                <h1>Edit Profile</h1>
+                <h1>Edit Player</h1>
             </div>
         
         </div>
 
-        <div class="row align-items-center justify-content-center">        
 
-        <!-- image -->
-        <div class="row align-items-center justify-content-center">        
+        {% for field in form %}
+            {% if not field.name == 'user' %}
+            <!-- field -->
+            <div class="row align-items-center justify-content-center">        
 
-            <label class="col-sm-3 col-form-label" for="{{ form.image.auto_id }}">Image:</label>
-            <div class="col-sm-9">
-                {% render_field form.image class+="form-control" %}
+                <label class="col-sm-3 col-form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% render_field field class+="form-control" %}
+                </div>
+
+                <div class="list-group mt-3">
+                    {% for error in field.errors %}
+                    <a href="#" class="list-group-item list-group-item-action list-group-item-warning mb-3">{{error}}</a>
+                    {%endfor%}
+                </div>
+
             </div>
-
-            <div class="list-group mt-3">
-                {% for error in form.image.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- First Name -->
-        <div class="row mb-3 align-items-center justify-content-center">        
-            
-            <label class="col-sm-3 col-form-label" for="{{ form.first_name.auto_id }}">First Name:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.first_name class+="form-control" %}
-            </div>
-
-            <div class="list-group">
-                {% for error in form.first_name.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- Last Name -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.last_name.auto_id }}">Last Name:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.last_name class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.last_name.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- Birth Date -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.date_birth.auto_id }}">Birth Date:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.date_birth class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.date_birth.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- Phone -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.phone.auto_id }}">Phone:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.phone class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.phone.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- Adress -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.adress.auto_id }}">Adress:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.adress class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.adress.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- City -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.city.auto_id }}">City:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.city class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.city.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-        
-        <!-- State -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.state.auto_id }}">State:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.state class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.state.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
-
-        <!-- Country -->
-        <div class="row mb-3 align-items-center justify-content-center">
-
-            <label class="col-sm-3 col-form-label" for="{{ form.country.auto_id }}">Country:</label>
-            
-            <div class="col-sm-9">
-                {% render_field form.country class+="form-control" %}
-            </div>      
-            
-            <div class="list-group">
-                {% for error in form.country.errors %}
-                <a href="#" class="list-group-item list-group-item-action list-group-item-warning">{{error}}</a>
-                {%endfor%}
-            </div>
-
-        </div>
+            {% endif %}
+        {% endfor %}
         
         <!-- Update -->
         <div class="row mb-3 align-items-center justify-content-center">  
@@ -179,8 +46,6 @@
             </div>
         
         </div>
-
-
 
     </form>
 

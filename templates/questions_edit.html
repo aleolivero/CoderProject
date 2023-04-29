@@ -9,56 +9,31 @@
 
     <form class="border border-light shadow-lg w-100 rounded-3 p-3"  action="" method="POST"> {% csrf_token %}
 
+
+        <div class="row mb-3 align-items-center justify-content-center border-bottom">  
+            <div class="text-center">
+                <h1>Edit Question</h1>
+            </div>
+        </div>
+
         <div class="row mb-1 align-items-center justify-content-center">  
-            <label class="col-sm-2 col-form-label"></label>
-            <div class="col-sm-6 text-center">
-                <h1>Form Edit Questions</h1>
-            </div>
-        </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_correct_answer">Title:</label>
-            <div class="col-sm-6">
-                {% render_field form.title class+="form-control" %}
-            </div>      
-        </div>
+            {% for field in form  %}
+            
+                <div class="row mb-1 align-items-center justify-content-center">        
+                    <label class="col-sm-2 col-form-label" for="{{field.auto_id}}">{{ field.label }}</label>
+                    <div class="col-sm-6">
+                        {% render_field field class+="form-control" %}
+                    </div>
+                    <div class="list-group mt-3">
+                        {% for error in field.errors %}
+                        <a href="#" class="list-group-item list-group-item-action list-group-item-warning mb-3">{{error}}</a>
+                        {%endfor%}
+                    </div>   
+                </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_correct_answer">Category:</label>
-            <div class="col-sm-6">
-                {% render_field form.category class+="form-control" %}
-            </div>      
-        </div>
+            {% endfor %}
 
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_question">Question:</label>
-            <div class="col-sm-6">
-                {% render_field form.question class+="form-control" %}
-            </div>
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_correct_answer">Correct Answer:</label>
-            <div class="col-sm-6">
-                {% render_field form.correct_answer class+="form-control" %}
-            </div>      
-        </div>
-
-
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_correct_answer">Date:</label>
-            <div class="col-sm-6">
-                {% render_field form.date class+="form-control" %}
-            </div>      
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-2 col-form-label" for="id_correct_answer">Author:</label>
-            <div class="col-sm-6">
-                {% render_field form.author class+="form-control" %}
-            </div>      
         </div>
 
 

@@ -1,17 +1,24 @@
 {% extends "layout.html" %}
 {% load static %}
+{% load widget_tweaks %}
+{% load custom_tags %}
 
 {% block content %}
 
 
 <div class="container-fluid d-flex align-items-center flex-column mt-5 w-100 px-3">
-    
-    
+
+    <div class="d-flex justify-content-end w-100">
+        <a class="btn btn-primary mb-3" href="{% url 'players_add' %}">Add Player</a>
+    </div>
+   
     <form class="border border-light shadow-lg w-100 rounded-3 mb-3 "  action="" method="POST"> {% csrf_token %}
 
         <table class="table table-striped table-hover shadow-lg bg-white rounded-3 w-100">
+            
             <thead>
                 <tr>
+                    <th class="col text-center" scope="col">User</th>
                     <th class="col text-center" scope="col">First Name</th>
                     <th class="col text-center" scope="col">Last Name</th>
                     <th class="col text-center" scope="col">Birth</th>
@@ -22,27 +29,29 @@
                     <th class="col text-center" scope="col">Country</th>
 
                 </tr>
-            
             </thead>
+            
             <tbody>
                 <tr>
-                    <td class="col text-center"><input class="form-control" type="text" name="first_name" maxlength="100" id="id_first_name"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="last_name" maxlength="100"  id="id_last_name"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="date_birth" id="id_date_birth"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="phone" maxlength="100"  id="id_phone"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="adress" maxlength="100" id="id_adress"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="city" maxlength="100" id="id_city"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="state" maxlength="100" id="id_state"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="country" maxlength="100" id="id_country"></td>
+                    <td class="col text-center">{% render_field form.user class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.first_name class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.last_name class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.date_birth class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.phone class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.adress class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.city class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.state class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.country class+="form-control" %}</td>
 
-                </tr>
-                
+                </tr>    
             </tbody>
+
         </table>
+
         <tr>
             <input class="btn btn-primary w-100" type="submit", value="SEARCH">
-
         </tr>
+
     </form>
 
 
@@ -51,6 +60,8 @@
 
         <thead>
             <tr>
+                <th class="col text-center" scope="col">User</th>
+                <th class="col text-center" scope="col">Avatar</th>
                 <th class="col text-center" scope="col">First Name</th>
                 <th class="col text-center" scope="col">Last Name</th>
                 <th class="col text-center" scope="col">Birth</th>
@@ -68,78 +79,38 @@
         <tbody>
 
             {% for player in players %}
-            <form  class="w-100" action="{% url 'players_edit' player.id %}" method="POST"> {% csrf_token %}
-                <tr id_player="{{player.id}}" class="px-0">
-                    
-                    <td class="col-1 text-center"> 
-                        <p class ='form-control data editable'>{{player.first_name}}</p> 
-                        <input class ='form-control editableInput' type="text" name="first_name" maxlength="100" hidden value="{{player.first_name}}" id="id_{{player.first_name}}">
-                    </td>
-                    
+            <tr>
+                
+                <td class="w-10 text-center">{{player.user}}</td>
+                <td class="w-10 text-center">
+                    {% if player.image %}
+                        <img src="{{player.image.url}}" class="img-fluid pt-1 me-1" style="max-height: 40px;">
+                    {% else %}
+                        <img src="/media/players/default/default.png" class="img-fluid pt-1 me-1" style="max-height: 40px;">
+                    {% endif %}
+                </td>
+                <td class="w-10 text-center">{{player.first_name}}</td>
+                <td class="w-10 text-center">{{player.last_name}}</td>
+                <td class="w-10 text-center">{{player.date_birth}}</td>
+                <td class="w-10 text-center">{{player.phone}}</td>
+                <td class="w-10 text-center">{{player.adress}}</td>
+                <td class="w-10 text-center">{{player.city}}</td>
+                <td class="w-10 text-center">{{player.state}}</td>
+                <td class="w-10 text-center">{{player.country}}</td>
 
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable'>{{player.last_name}}</p> 
-                        <input class ='form-control editableInput' type="text" name="last_name" maxlength="100" hidden value="{{player.last_name}}" id="id_{{player.last_name}}">
-                    </td>                
+                <td class="col-1  text-center options">
+                    <div class="row" style="margin:0px">
+                        <a class="btn btn-secondary no-gutters"  href="{% url 'players_edit' player.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <a class="btn btn-danger no-gutters"  href="{% url 'players_delete' player.id %}"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                </td>    
 
+            </tr>
 
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="date" name="date_birth" maxlength="100">{{player.date_birth_str}}</p> 
-                        <input class ='form-control editableInput' type="date" name="date_birth" maxlength="100" hidden value="{{player.date_birth_str}}" id="id_{{player.date_birth_str}}">
-
-                    </td>   
-
-                    
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="text" name="phone" maxlength="100" >{{player.phone}}</p>
-                        <input class ='form-control editableInput' type="text" name="phone" maxlength="100" hidden value="{{player.phone}}" id="id_{{player.phone}}">
-
-                    </td>   
-
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="text" name="adress" maxlength="100">{{player.adress}}</p>                    
-                        <input class ='form-control editableInput' type="text" name="adress" maxlength="100" hidden value="{{player.adress}}" id="id_{{player.adress}}">
-                    
-                    </td>   
-
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="text" name="city" maxlength="100">{{player.city}}</p> 
-                        <input class ='form-control editableInput' type="text" name="city" maxlength="100" hidden value="{{player.city}}" id="id_{{player.city}}">
-                    
-                    </td>   
-
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="text" name="state" maxlength="100" >{{player.state}}</p>
-                        <input class ='form-control editableInput' type="text" name="state" maxlength="100" hidden value="{{player.state}}" id="id_{{player.state}}">
-
-                    </td>   
-
-                    <td class="col-1  text-center"> 
-                        <p class ='form-control data editable' type="text" name="country" maxlength="100" >{{player.country}}</p>
-                        <input class ='form-control editableInput' type="text" name="country" maxlength="100" hidden value="{{player.country}}" id="id_{{player.country}}">
-
-                    </td>   
-
-                    
-                    <td class="col-1  text-center options">
-                        <div class="row" style="margin:0px">
-                            
-                            
-
-                            <input class="btn btn-success no-gutters confirm editable" hidden type="submit" value="Update">
-                            <a class="btn btn-danger no-gutters cancel  editable"  hidden href="#" onclick="cancelRow(this)"><i class="fa-regular fa-circle-xmark"></i></a>
-                            
-                            <a class="btn btn-secondary no-gutters edit editable"  href="#" onclick="editRow(this)"><i class="fa-solid fa-pen-to-square"></i></a>
-                            <a class="btn btn-danger no-gutters delete  editable"  href="{% url 'players_delete' player.id %}"><i class="fa-solid fa-trash"></i></a>
-
-                        </div>
-                    </td>
-            
-                </tr>
-            </form>
             {% endfor %}
 
         </tbody>
+
     </table>
 
     <tr>
@@ -148,122 +119,6 @@
 
 </div>
 
-<script>
-    function editRow(button) {
-
-        
-        var row = button.closest("tr");
-
-        var editablesInputs = document.querySelectorAll('input.editableInput')
-
-        for (var i = 0; i < editablesInputs.length; i++) {
-
-            console.log(editablesInputs[i])
-
-            editablesInputs[i].setAttribute("hidden", "");
-        }
-
-        var editablesP = document.querySelectorAll('p.editable')
-
-        for (var i = 0; i < editablesP.length; i++) {
-
-            console.log(editablesP[i])
-
-            editablesP[i].removeAttribute('hidden')
-
-        }
-
-        var buttonsEdit = document.querySelectorAll('a.edit')
-
-        for (var i = 0; i < buttonsEdit.length; i++) {
-
-            console.log(buttonsEdit[i])
-
-            buttonsEdit[i].removeAttribute('hidden')
-
-        }
-
-        var buttonsDelete = document.querySelectorAll('a.delete')
-
-        for (var i = 0; i < buttonsDelete.length; i++) {
-
-            console.log(buttonsDelete[i])
-
-            buttonsDelete[i].removeAttribute('hidden')
-
-        }        
-
-        var buttonsConfirm = document.querySelectorAll('input.confirm')
-
-        for (var i = 0; i < buttonsConfirm.length; i++) {
-
-            console.log(buttonsConfirm[i])
-
-            buttonsConfirm[i].removeAttribute('hidden');
-            buttonsConfirm[i].setAttribute("hidden", "");
-            
-
-        }  
-
-        var buttonsCancel = document.querySelectorAll('a.cancel')
-
-        for (var i = 0; i < buttonsCancel.length; i++) {
-
-            console.log(buttonsCancel[i])
-
-            buttonsCancel[i].removeAttribute('hidden');
-            buttonsCancel[i].setAttribute("hidden", "");
-            
-
-        }  
-
-
-        var editables = row.getElementsByClassName("editable");
-        
-        for (var i = 0; i < editables.length; i++) {
-
-            editables[i].toggleAttribute("hidden")
-
-        }
-
-        var editablesInputs = row.getElementsByClassName("editableInput");
-        
-        for (var i = 0; i < editablesInputs.length; i++) {
-
-            editablesInputs[i].toggleAttribute("hidden")
-
-        }
-
-
-    }
-
-function cancelRow(button) {
-
-    var row = button.closest("tr");
-
-    var editables = row.getElementsByClassName("editable");
-        
-    for (var i = 0; i < editables.length; i++) {
-
-        editables[i].toggleAttribute("hidden");
-
-    }
-
-    var editablesInputs = row.querySelectorAll('input.editableInput')
-
-    for (var i = 0; i < editablesInputs.length; i++) {
-
-        console.log(editablesInputs[i])
-
-        editablesInputs[i].setAttribute("hidden", "");
-
-    }
-
-}
-
-
-
-</script>
 
 
 {% endblock %}

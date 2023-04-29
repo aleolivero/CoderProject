@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% load static %}
 {% load humanize %}
+{% load widget_tweaks %}
+
 {% block content %}
 
 
@@ -20,7 +22,7 @@
                     <th class="col text-center" scope="col">Title</th>
                     <th class="col text-center" scope="col">Category</th>
                     <th class="col text-center" scope="col">Date</th>
-                    <th class="col text-center" scope="col">Auhtor</th>
+                    <th class="col text-center" scope="col">Author</th>
                     <th class="col text-center" scope="col">Question</th>
                     <th class="col text-center" scope="col">Correct Answer</th>
 
@@ -29,12 +31,12 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="col text-center"><input class="form-control" type="text" name="title" maxlength="100" id="id_title"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="category" maxlength="100" id="id_category"></td>
-                    <td class="col text-center"><input class="form-control" type="date" name="date"  id="id_date"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="author" maxlength="100" id="id_author"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="question" maxlength="100" id="id_question"></td>
-                    <td class="col text-center"><input class="form-control" type="text" name="correct_answer" maxlength="100" id="id_correct_answer"></td>
+                    <td class="col text-center">{% render_field form.title class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.category class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.date class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.author class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.question class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.correct_answer class+="form-control" %}</td>
                 </tr>
                 
             </tbody>
@@ -56,8 +58,6 @@
                 <th class="col text-center" scope="col">Question</th>
                 <th class="col text-center" scope="col">Correct Answer</th>
                 <th class="col text-center" scope="col">Options</th>
-
-
             </tr>
         
         </thead>
@@ -72,17 +72,15 @@
                 <td class="w-10 text-center">{{question.author}}</td>               
                 <td class="w-10 text-center">{{question.question}}</td>
                 <td class="w-10 text-center">{{question.correct_answer|intcomma}}</td>
-
                 <td class="col-1  text-center options">
                     <div class="row" style="margin:0px">
                         <a class="btn btn-secondary no-gutters"  href="{% url 'questions_edit' question.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
                         <a class="btn btn-danger no-gutters"  href="{% url 'questions_delete' question.id %}"><i class="fa-solid fa-trash"></i></a>
-
                     </div>
-                </td>                
-
+                </td>    
 
             </tr>
+
             {% endfor %}
 
         </tbody>

@@ -1,15 +1,19 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions
-from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm, FormEditAccount, FormProfile
+from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers
 from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import DateField, CharField
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 import os
 # Create your views here.
+
+def is_admin(user):
+    return user.is_authenticated and user.is_staff
 
 @login_required
 def index(request):
@@ -17,13 +21,13 @@ def index(request):
 
     return render(request,'index.html',params)
 
-@login_required
+@user_passes_test(is_admin)
 def players_view(request):
     params = {}
 
     if request.method == 'POST':
 
-        form = FormPlayers(request.POST)
+        form = FormSearchPlayers(request.POST)
 
         _first_name = request.POST['first_name']
         _last_name = request.POST['last_name']
@@ -52,7 +56,7 @@ def players_view(request):
     
     else:
         
-        form = FormPlayers()
+        form = FormSearchPlayers()
         
         params['players'] = Players.objects.all().annotate(date_birth_str=Cast('date_birth', output_field=CharField()),)
         params['form'] = form
@@ -61,84 +65,100 @@ def players_view(request):
 
 @login_required
 def players_add(request):
+
     params = {}
 
-    # User sends data to server
     if request.method == 'POST':
 
         form = FormPlayers(request.POST, request.FILES)
 
-        #Data valid
+        params['form'] = form
         if form.is_valid():
-
-            _user = form.cleaned_data['user']  
+            _user = form.cleaned_data['user']
+            _image = form.cleaned_data['image']
             _first_name = form.cleaned_data['first_name']
             _last_name = form.cleaned_data['last_name']
             _date_birth = form.cleaned_data['date_birth']
             _phone = form.cleaned_data['phone']
-            _adress = form.cleaned_data['adress'] 
+            _adress = form.cleaned_data['adress']
             _city = form.cleaned_data['city']
             _state = form.cleaned_data['state']
             _country = form.cleaned_data['country']
 
             _newPlayer = Players(
-                                user = _user,
-                                image = request.FILES['image'],
-                                first_name = _first_name, 
-                                last_name = _last_name, 
-                                date_birth = _date_birth,
-                                phone = _phone,
-                                adress = _adress,
-                                city = _city,
-                                state = _state,
-                                country = _country,
-                                )
+                user = _user,
+                image = _image,
+                first_name = _first_name,
+                last_name = _last_name,
+                date_birth = _date_birth,
+                phone = _phone,
+                adress = _adress,
+                city = _city,
+                state = _state,
+                country = _country,
+                )
 
             _newPlayer.save()
 
             return HttpResponseRedirect('/Coder/players')
-
-        
-        #Data no valid
         else:
-            params['form'] = form
-
-            return render(request,'players_add.html',params)
-
-
-    # User asks data to server
+            return render(request,'players_add.html', params)
+    
     else:
-        
         form = FormPlayers()
-        
         params['form'] = form
+        
+        return render(request,'players_add.html', params)
 
-        return render(request,'players_add.html',params)
 
 @login_required
 def players_edit(request, id):
 
-    form = FormPlayers(request.POST)
+    params = {}
+
+    _player = Players.objects.get(user__id = id)
+
+    if request.method == 'POST':
+
+        form = FormPlayers(request.POST, request.FILES)
+        form.fields['image'].required = False
+
+        print(request.FILES)
+        print(bool(request.FILES))
+        
+        params['form'] = form
+
+        if form.is_valid():
+            if request.FILES:
+                _player.image.delete()
+                _player.image = form.cleaned_data['image']
+
+            _player.first_name = form.cleaned_data['first_name']
+            _player.last_name = form.cleaned_data['last_name']
+            _player.date_birth = form.cleaned_data['date_birth']
+            _player.phone = form.cleaned_data['phone']
+            _player.adress = form.cleaned_data['adress']
+            _player.city = form.cleaned_data['city']
+            _player.state = form.cleaned_data['state']
+            _player.country = form.cleaned_data['country']
+
+            _player.save()
+
+            return redirect(reverse('players_view'))
+        else:
+
+            return render(request,'players_edit.html', params)
     
-    if form.is_valid():
-        _player = Players.objects.get(id=id)
-        _player.first_name=form.cleaned_data['first_name']
-        _player.last_name=form.cleaned_data['last_name']
-        _player.date_birth=form.cleaned_data['date_birth']
-        _player.phone=form.cleaned_data['phone']
-        _player.adress=form.cleaned_data['adress']
-        _player.city=form.cleaned_data['city']
-        _player.state=form.cleaned_data['state']
-        _player.country=form.cleaned_data['country']
-        _player.save()
+    else:
+        form = FormPlayers(instance=_player)
+        form.fields['image'].required = False
+        params['form'] = form
+        
+        return render(request,'players_edit.html', params)
 
-
-    return redirect(reverse('players_view'))
 
 @login_required
 def players_delete(request,id):
-    
-    
 
     player = Players.objects.get(id=id)
     player = player.delete()
@@ -151,7 +171,8 @@ def questions_view(request):
 
     if request.method == 'POST':
 
-        form = FormQuestions(request.POST)
+        print(request.POST)
+        form = FormSearchQuestions(request.POST)
 
         _title = request.POST['title']
         _category = request.POST['category']
@@ -164,7 +185,7 @@ def questions_view(request):
             title__icontains = _title,
             category__icontains = _category,
             date__icontains = _date,
-            author__user__username__icontains = _author,
+            author__user__id__icontains = _author,
             question__icontains = _question,
             correct_answer__icontains = _correct_answer,
         )
@@ -175,7 +196,7 @@ def questions_view(request):
     
     else:
         
-        form = FormQuestions()
+        form = FormSearchQuestions()
         
         params['questions'] = Questions.objects.all()
         params['form'] = form
@@ -463,7 +484,7 @@ def editAccount(request):
         return render(request,'editAccount.html', params)
 
 @login_required
-def editPlayer(request):
+def editProfile(request):
     params = {}
 
     _player = Players.objects.get(user = request.user)
@@ -472,10 +493,6 @@ def editPlayer(request):
 
         form = FormProfile(request.POST, request.FILES)
         form.fields['image'].required = False
-
-        print(request.FILES)
-        print(bool(request.FILES))
-        
 
         params['form'] = form
 
@@ -498,11 +515,11 @@ def editPlayer(request):
             return redirect(reverse('index'))
         else:
 
-            return render(request,'players_edit.html', params)
+            return render(request,'editProfile.html', params)
     
     else:
         form = FormProfile(instance=_player)
         form.fields['image'].required = False
         params['form'] = form
         
-        return render(request,'players_edit.html', params)
+        return render(request,'editProfile.html', params)

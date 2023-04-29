@@ -15,75 +15,25 @@
             </div>
         </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_user">User:</label>
-            <div class="col-sm-7">
-                {% render_field form.user class+="form-control" %}
-            </div>
-        </div>
+        {% for field in form %}
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_first_name">First Name:</label>
-            <div class="col-sm-7">
-                {% render_field form.first_name class+="form-control" %}
-            </div>
-        </div>
+            <!-- field -->
+            <div class="row align-items-center justify-content-center">        
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_last_name">Last Name:</label>
-            <div class="col-sm-7">
-                {% render_field form.last_name class+="form-control" %}
-            </div>      
-        </div>
+                <label class="col-sm-3 col-form-label" for="{{ field.auto_id }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% render_field field class+="form-control" %}
+                </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_image">Image:</label>
-            <div class="col-sm-7">
-                {% render_field form.image class+="form-control" %}
-            </div>
-        </div>
+                <div class="list-group mt-3">
+                    {% for error in field.errors %}
+                    <a href="#" class="list-group-item list-group-item-action list-group-item-warning mb-3">{{error}}</a>
+                    {%endfor%}
+                </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_date_birth">Birth:</label>
-            <div class="col-sm-7">
-                {% render_field form.date_birth class+="form-control" %}
             </div>
-        </div>
 
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_phone">Phone:</label>
-            <div class="col-sm-7">
-                {% render_field form.phone class+="form-control" %}
-            </div>
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_adress">Adress:</label>
-            <div class="col-sm-7">
-                {% render_field form.adress class+="form-control" %}
-            </div>
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_city">City:</label>
-            <div class="col-sm-7">
-                {% render_field form.city class+="form-control" %}
-            </div>
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_state">State:</label>
-            <div class="col-sm-7">
-                {% render_field form.state class+="form-control" %}
-            </div>
-        </div>
-
-        <div class="row mb-1 align-items-center justify-content-center">        
-            <label class="col-sm-1 col-form-label" for="id_country">Country:</label>
-            <div class="col-sm-7">
-                {% render_field form.country class+="form-control" %}
-            </div>
-        </div>
+        {% endfor %}
 
         <div class="row mb-1 align-items-center justify-content-center">  
             <label class="col-sm-1 col-form-label"></label>
