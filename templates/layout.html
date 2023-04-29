@@ -25,6 +25,7 @@
                 {% if user.is_authenticated %}
                 <ul class="navbar-nav ms-5">
 
+                    <!-- Players -->
                     <li class="nav-item dropdown">
                 
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -38,19 +39,16 @@
                     
                     </li>
                 
-                    <li class="nav-item dropdown">
+                    <!-- Questions -->
+                    <li class="nav-item ">
                 
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link " href="{% url 'questions_view' %}" role="button">
                             Questions
                         </a>
                     
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'questions_view' %}">View</a></li>
-                            <li><a class="dropdown-item" href="{% url 'questions_add' %}">Add</a></li>
-                        </ul>
-                    
                     </li>
                 
+                    <!-- Answers -->
                     <li class="nav-item dropdown">
                 
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -75,13 +73,18 @@
                     </li>
                     {% else %}
                     <li class="nav-item ">
-                        <img src="{{request.user.players.image.url|default:'/media/players/default/default.png'}}" class="img-fluid pt-1 me-1" style="max-height: 40px;">
+                        {% if request.user.players.image %}
+                            <img src="{{request.user.players.image.url}}" class="img-fluid pt-1 me-1" style="max-height: 40px;">
+                        {% else %}
+                            <img src="/media/players/default/default.png" class="img-fluid pt-1 me-1" style="max-height: 40px;">
+                        {% endif %}
+                        
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{% url 'editPlayer' %}">Edit Player</a>
+                        <a class="nav-link" href="{% url 'editPlayer' %}">Edit Profile</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{% url 'editProfile' %}">Edit Profile</a>
+                        <a class="nav-link" href="{% url 'editAccount' %}">Edit Account</a>
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link" href="{% url 'signout' %}">Sign Out</a>
@@ -99,6 +102,7 @@
         </div>
         </nav>
         {% block content%}
+        
         {% endblock%}
     </div>
 </div>

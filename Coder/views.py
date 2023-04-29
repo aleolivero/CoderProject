@@ -1,14 +1,14 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions
-from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm, FormEditUser
+from .forms import FormPlayers, FormAnswers, FormQuestions, SignUpForm, FormEditAccount, FormProfile
 from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import DateField, CharField
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-
+import os
 # Create your views here.
 
 @login_required
@@ -153,10 +153,18 @@ def questions_view(request):
 
         form = FormQuestions(request.POST)
 
+        _title = request.POST['title']
+        _category = request.POST['category']
+        _date = request.POST['date']
+        _author = request.POST['author']       
         _question = request.POST['question']
         _correct_answer = request.POST['correct_answer']
 
         params['questions'] = Questions.objects.filter(
+            title__icontains = _title,
+            category__icontains = _category,
+            date__icontains = _date,
+            author__user__username__icontains = _author,
             question__icontains = _question,
             correct_answer__icontains = _correct_answer,
         )
@@ -186,12 +194,21 @@ def questions_add(request):
         #Data valid
         if form.is_valid():
 
+            _title = form.cleaned_data['title']
+            _category = form.cleaned_data['category']
             _question = form.cleaned_data['question']
             _correct_answer = form.cleaned_data['correct_answer']
+            _date = form.cleaned_data['date']
+            _author = form.cleaned_data['author']
 
-            _newQuestion = Questions(question = _question, 
-                                 correct_answer = _correct_answer, 
-                                )
+            _newQuestion = Questions(
+                title = _title,
+                category = _category,
+                question = _question, 
+                correct_answer = _correct_answer,
+                date = _date,
+                author = _author,
+                )
 
             _newQuestion.save()
 
@@ -213,6 +230,47 @@ def questions_add(request):
         params['form'] = form
 
         return render(request,'questions_add.html',params)
+
+@login_required
+def questions_edit(request, id):
+
+    params = {}
+    _question = Questions.objects.get(id=id)
+
+    if request.method == 'POST':
+
+        form = FormQuestions(request.POST)
+        
+        params['form'] = form
+
+        if form.is_valid():
+            _question.title = form.cleaned_data['title']
+            _question.category = form.cleaned_data['category']
+            _question.question = form.cleaned_data['question']
+            _question.correct_answer = form.cleaned_data['correct_answer']
+            _question.date = form.cleaned_data['date']
+            _question.author = form.cleaned_data['author']
+            _question.save()
+
+            return redirect(reverse('questions_view'))
+        else:
+
+            return render(request,'questions_edit.html', params)
+    
+    else:
+        form = FormQuestions(instance=_question)
+        
+        params['form'] = form
+        
+        return render(request,'questions_edit.html', params)
+
+@login_required
+def questions_delete(request,id):
+    
+    question = Questions.objects.get(id=id)
+    question = question.delete()
+    
+    return redirect(reverse('questions_view'))
 
 @login_required
 def answers_view(request):
@@ -369,14 +427,14 @@ def signup(request):
         return render(request,'signup.html', params)
     
 @login_required
-def editProfile(request):
+def editAccount(request):
 
     params = {}
     user = request.user
 
     if request.method == 'POST':
         
-        form = FormEditUser(request.POST)
+        form = FormEditAccount(request.POST)
 
         if form.is_valid():
             
@@ -388,27 +446,63 @@ def editProfile(request):
 
             user.password2 = _user['password2']
 
-            user.firs_name = _user['first_name']
-
-            user.last_name = _user['last_name']
-
             user.save()
 
             return redirect(reverse('index'))
 
         else:
 
-            return render(request,'editProfile.html', params)
+            return render(request,'editAccount.html', params)
             
     
     else:
-        form = FormEditUser(instance=user)
+        form = FormEditAccount(instance=user)
         
         params['form'] = form
         
-        return render(request,'editProfile.html', params)
-
+        return render(request,'editAccount.html', params)
 
 @login_required
 def editPlayer(request):
-    pass
+    params = {}
+
+    _player = Players.objects.get(user = request.user)
+
+    if request.method == 'POST':
+
+        form = FormProfile(request.POST, request.FILES)
+        form.fields['image'].required = False
+
+        print(request.FILES)
+        print(bool(request.FILES))
+        
+
+        params['form'] = form
+
+        if form.is_valid():
+            if request.FILES:
+                _player.image.delete()
+                _player.image = form.cleaned_data['image']
+
+            _player.first_name = form.cleaned_data['first_name']
+            _player.last_name = form.cleaned_data['last_name']
+            _player.date_birth = form.cleaned_data['date_birth']
+            _player.phone = form.cleaned_data['phone']
+            _player.adress = form.cleaned_data['adress']
+            _player.city = form.cleaned_data['city']
+            _player.state = form.cleaned_data['state']
+            _player.country = form.cleaned_data['country']
+
+            _player.save()
+
+            return redirect(reverse('index'))
+        else:
+
+            return render(request,'players_edit.html', params)
+    
+    else:
+        form = FormProfile(instance=_player)
+        form.fields['image'].required = False
+        params['form'] = form
+        
+        return render(request,'players_edit.html', params)

@@ -17,15 +17,22 @@ class Players(models.Model):
     country = models.CharField(max_length=100, verbose_name="Country")
 
     def __str__(self,):
-        return str(self.first_name) + ' ' + str(self.last_name)
+        if not self.first_name and not self.last_name:
+            
+            _str = str(self.user.username)
+
+        else:
+            
+            _str = str(self.first_name) + ' ' + str(self.last_name)
+
+        return _str
     
 class Questions(models.Model):
 
     title = models.CharField(max_length=1000, verbose_name="Title")
-    subtitle = models.CharField(max_length=1000, verbose_name="Sub Title")
+    category = models.CharField(max_length=1000, verbose_name="Category")
     question = models.CharField(max_length=1000, verbose_name="Question")
-    image = models.ImageField(verbose_name="Image")
-    data = models.DateField(verbose_name="Date")
+    date = models.DateField(verbose_name="Date")
     correct_answer = models.CharField(max_length=1000, verbose_name="Correct Answer")
     author = models.ForeignKey(Players,blank=False,null=True,on_delete=models.CASCADE, verbose_name="Player")
 

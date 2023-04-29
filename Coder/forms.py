@@ -24,9 +24,16 @@ class FormQuestions(ModelForm):
     class Meta:
         model = Questions
         fields = [
+            'title',
+            'category',
             'question', 
+            'date',
             'correct_answer', 
+            'author',
         ]
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class FormAnswers(ModelForm):
     class Meta:
@@ -50,8 +57,25 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ['username','email','password1','password2']
         
-class FormEditUser(UserCreationForm):
+class FormEditAccount(UserCreationForm):
     class Meta:
         model = User
-        fields = ['email','password1','password2','first_name','last_name']
+        fields = ['email','password1','password2']
 
+class FormProfile(ModelForm):
+    class Meta:
+        model = Players
+        fields = [
+            'image',
+            'first_name', 
+            'last_name', 
+            'date_birth' ,
+            'phone',
+            'adress', 
+            'city',
+            'state', 
+            'country', 
+        ]
+        widgets = {
+            'date_birth': forms.DateInput(attrs={'type': 'date'}),
+        }
