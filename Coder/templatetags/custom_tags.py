@@ -10,3 +10,16 @@ def get_attr(obj, attr_name):
 @register.filter
 def items(value):
     return {k: v for k, v in value.__dict__.items() if not k.startswith('_')}.items()
+
+@register.simple_tag
+def define(val=None):
+  return val
+
+@register.filter
+def url(attr):
+    try:
+        _url = attr.url
+    except:
+        _url = '/media/players/default/default.png'
+
+    return _url

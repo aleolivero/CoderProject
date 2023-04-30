@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.html import format_html
 
 # Create your models here.
 
@@ -28,6 +29,13 @@ class Players(models.Model):
         return _str
     
 class Questions(models.Model):
+    
+    STATUS_CHOICES = (
+    ('open', 'Open'),
+    ('pending', 'Pending'),
+    ('closed', 'Closed'),
+    )
+
 
     title = models.CharField(max_length=1000, verbose_name="Title")
     category = models.CharField(max_length=1000, verbose_name="Category")
@@ -35,7 +43,20 @@ class Questions(models.Model):
     date = models.DateField(verbose_name="Date")
     correct_answer = models.CharField(max_length=1000, verbose_name="Correct Answer")
     author = models.ForeignKey(Players,blank=False,null=True,on_delete=models.CASCADE, verbose_name="Player")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
+    points = models.FloatField(verbose_name="Points", default=3)    
 
+    def statusFormat(self):
+        if str(self.status) == 'open':
+
+            return format_html('<span style="color:green"> <b>{} </b></span>', str(self.status).upper())
+
+        elif str(self.status) == 'pending':
+            return format_html('<span style="color:orange"> <b>{} </b></span>', str(self.status).upper())
+
+        elif str(self.status) == 'closed':
+            return format_html('<span style="color:red"> <b>{} </b></span>', str(self.status).upper())
+        
     def __str__(self,):
         return str(self.question)
 
@@ -48,3 +69,6 @@ class Answers(models.Model):
 
     def __str__(self,):
         return str(self.answer)
+    
+class PlayerScore(models.Model):
+    winner_answer = models.ForeignKey(Answers,blank=False,null=True,on_delete=models.CASCADE, verbose_name="winner_answer")

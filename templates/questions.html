@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
 {% load static %}
 {% load humanize %}
+{% load custom_tags %}
+
 {% load widget_tweaks %}
 
 {% block content %}
 
-
-<div class="container d-flex align-items-center flex-column mt-5 mb-5 ">  
+<div class="container d-flex align-items-center flex-column mt-5 mb-5" >  
 
     <div class="d-flex justify-content-end w-100">
         <a class="btn btn-primary mb-3" href="{% url 'questions_add' %}">Add Question</a>
@@ -25,6 +26,7 @@
                     <th class="col text-center" scope="col">Author</th>
                     <th class="col text-center" scope="col">Question</th>
                     <th class="col text-center" scope="col">Correct Answer</th>
+                    <th class="col text-center" scope="col">Status</th>
 
                 </tr>
             
@@ -37,6 +39,8 @@
                     <td class="col text-center">{% render_field form.author class+="form-control" %}</td>
                     <td class="col text-center">{% render_field form.question class+="form-control" %}</td>
                     <td class="col text-center">{% render_field form.correct_answer class+="form-control" %}</td>
+                    <td class="col text-center">{% render_field form.status class+="form-control" %}</td>
+
                 </tr>
                 
             </tbody>
@@ -57,6 +61,7 @@
                 <th class="col text-center" scope="col">Author</th>
                 <th class="col text-center" scope="col">Question</th>
                 <th class="col text-center" scope="col">Correct Answer</th>
+                <th class="col text-center" scope="col">Status</th>
                 <th class="col text-center" scope="col">Options</th>
             </tr>
         
@@ -66,16 +71,36 @@
 
             {% for question in questions %}
             <tr>
-                <td class="w-10 text-center">{{question.title}}</td>
-                <td class="w-10 text-center">{{question.category}}</td>
-                <td class="w-10 text-center">{{question.date}}</td>
-                <td class="w-10 text-center">{{question.author}}</td>               
-                <td class="w-10 text-center">{{question.question}}</td>
-                <td class="w-10 text-center">{{question.correct_answer|intcomma}}</td>
-                <td class="col-1  text-center options">
-                    <div class="row" style="margin:0px">
-                        <a class="btn btn-secondary no-gutters"  href="{% url 'questions_edit' question.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <a class="btn btn-danger no-gutters"  href="{% url 'questions_delete' question.id %}"><i class="fa-solid fa-trash"></i></a>
+                <td class="col text-center">{{question.title}}</td>
+                <td class="col text-center">{{question.category}}</td>
+                <td class="col text-center">{{question.date}}</td>
+                <td class="col text-center">{{question.author}}</td>               
+                <td class="col text-center">{{question.question}}</td>
+                <td class="col text-center">{{question.correct_answer|intcomma}}</td>
+                <td class="col text-center">{{question.statusFormat}}</td>
+                
+                <td class="col  text-center options">
+                    <div class="d-flex justify-content-center">
+
+                        {% if question.status == 'closed' %}
+                            <a class="btn btn-info no-gutters mx-1"  href="{% url 'questions_result' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="View results"><i class="fa-solid fa-ranking-star"></i></a>
+                        {% else %}
+                            <a class="btn btn-secondary no-gutters mx-1"  href="#" data-bs-toggle="tooltip"  data-bs-placement="top" title="View results"><i class="fa-solid fa-ranking-star"></i></a>    
+                        {% endif %}
+
+
+                        
+                        {% if question.status == 'open' %}
+                            <a class="btn btn-dark no-gutters mx-1"  href="{% url 'questions_pending' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="Close question"><i class="fa-sharp fa-solid fa-lock"></i></a>
+                        {% elif question.status == 'pending' %}
+                            <a class="btn btn-success no-gutters mx-1"  href="{% url 'questions_closed' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="Select winner"><i class="fas fa-trophy"></i></a>
+                        {% elif question.status == 'closed' %}
+                            <a class="btn btn-primary no-gutters mx-1"  href="{% url 'questions_open' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="Reopen question"><i class="fa-sharp fa-solid fa-unlock"></i></a>
+                        {% endif %}
+
+                        
+                        <a class="btn btn-secondary no-gutters mx-1"  href="{% url 'questions_edit' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="Edit question"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <a class="btn btn-danger no-gutters mx-1"  href="{% url 'questions_delete' question.id %}" data-bs-toggle="tooltip"  data-bs-placement="top" title="Delete question"><i class="fa-solid fa-trash"></i></a>
                     </div>
                 </td>    
 
@@ -92,5 +117,12 @@
     </tr>
 
 </div>
+<script>
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+
+</script>
 
 {% endblock %}

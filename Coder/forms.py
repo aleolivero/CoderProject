@@ -62,11 +62,11 @@ class FormQuestions(ModelForm):
             'date',
             'correct_answer', 
             'author',
+            'status',
         ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
-
 
 class FormSearchQuestions(ModelForm):
     class Meta:
@@ -78,9 +78,11 @@ class FormSearchQuestions(ModelForm):
             'date',
             'correct_answer', 
             'author',
+            'status',
         ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
+
         }
     def __init__(self, *args, **kwargs):
         super(FormSearchQuestions, self).__init__(*args, **kwargs)
@@ -88,7 +90,25 @@ class FormSearchQuestions(ModelForm):
             field.required = False
 
 
-class FormAnswers(ModelForm):
+
+class FormAnswersPlayer(ModelForm):
+    class Meta:
+        model = Answers
+        fields = [
+            'question', 
+            'answer',
+        ]
+        widgets = {
+            'question': forms.Select(attrs={'class': 'form-control'}),
+            'answer': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    def __init__(self, *args, **kwargs):
+        open_questions = kwargs.pop('open_questions', None)
+        super(FormAnswersPlayer, self).__init__(*args, **kwargs)
+        if open_questions is not None:
+            self.fields['question'].queryset = open_questions
+
+class FormSearchAnswers(ModelForm):
     class Meta:
         model = Answers
         fields = [
@@ -96,11 +116,12 @@ class FormAnswers(ModelForm):
             'answer',
             'player', 
         ]
-        widgets = {
-            'question': forms.Select(attrs={'class': 'form-control'}),
-            'player': forms.Select(attrs={'class': 'form-control'}),
-            'answer': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+    def __init__(self, *args, **kwargs):
+        super(FormSearchAnswers, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+
 
 class SignUpForm(UserCreationForm):
     

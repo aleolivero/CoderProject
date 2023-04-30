@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% load static %}
+{% load humanize %}
+{% load widget_tweaks %}
 
 {% block content %}
 
@@ -18,9 +20,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="w-10 text-center"><input class="form-control" type="text" name="question" maxlength="100" id="id_question"></td>
-                    <td class="w-10 text-center"><input class="form-control" type="text" name="answer" maxlength="100" id="id_answer"></td>
-                    <td class="w-10 text-center"><input class="form-control" type="text" name="player" maxlength="100" id="id_player"></td>
+                    <td class="w-10 text-center">{% render_field form.question class+="form-control" %}</td>
+                    <td class="w-10 text-center">{% render_field form.answer class+="form-control" %}</td>
+                    <td class="w-10 text-center">{% render_field form.player class+="form-control" %}</td>
                 </tr>
                 
             </tbody>

@@ -14,12 +14,16 @@ urlpatterns = [
 
     
     path('answers/', views.answers_view, name='answers_view'),
-    path('answersAdd/', views.answers_add, name='answers_add'),
+    path('answersPlayerAdd/', views.answersPlayer_add, name='answersPlayerAdd'),
 
     path('questions/', views.questions_view, name='questions_view'),
     path('questionsAdd/', views.questions_add, name='questions_add'),
     path('questionsEdit/<id>', views.questions_edit, name='questions_edit'),
     path('questionsDelete/<id>', views.questions_delete, name='questions_delete'),
+    path('questionsPending/<id>', views.questions_pending, name='questions_pending'),
+    path('questionsClosed/<id>', views.questions_closed, name='questions_closed'),
+    path('questionsOpen/<id>', views.questions_open, name='questions_open'),
+    path('questionsResult/<id>', views.questions_result, name='questions_result'),
 
 
     path('signin/', views.signin, name='signin'),
