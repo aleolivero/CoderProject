@@ -1,10 +1,9 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
-from .models import Players, Answers, Questions, PlayerScore
+from .models import Players, Answers, Questions, PlayerScore, Event, QuestionsRules
 from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers
-from django.db.models import Q, F, FloatField, ExpressionWrapper
-from django.db.models.functions import Cast
-from django.db.models import DateField, CharField
+from django.db.models import Q, F, FloatField, ExpressionWrapper, DateField, CharField,Exists, OuterRef, Prefetch
+from django.db.models.functions import Cast, Abs
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -17,6 +16,7 @@ def is_admin(user):
 
 @login_required
 def index(request):
+
     params = {}
 
     return render(request,'index.html',params)
@@ -181,6 +181,9 @@ def questions_view(request):
         _question = request.POST['question']
         _correct_answer = request.POST['correct_answer']
         _status = request.POST['status']
+        _event = request.POST['event']
+        _question_rule = request.POST['question_rule']
+        _result =  request.POST['result']
 
         params['questions'] = Questions.objects.filter(
             title__icontains = _title,
@@ -190,6 +193,9 @@ def questions_view(request):
             question__icontains = _question,
             correct_answer__icontains = _correct_answer,
             status__icontains = _status,
+            result__icontains = _result,
+            event__id__icontains = _event,
+            question_rule__id__icontains = _question_rule,
         )
 
         params['form'] = form
@@ -223,7 +229,8 @@ def questions_add(request):
             _correct_answer = form.cleaned_data['correct_answer']
             _date = form.cleaned_data['date']
             _author = form.cleaned_data['author']
-            _status = form.cleaned_data['status']
+            # _status = form.cleaned_data['status']
+            _event = form.cleaned_data['event']
 
             _newQuestion = Questions(
                 title = _title,
@@ -232,7 +239,7 @@ def questions_add(request):
                 correct_answer = _correct_answer,
                 date = _date,
                 author = _author,
-                status = _status,
+                event = _event,
                 )
 
             _newQuestion.save()
@@ -275,7 +282,7 @@ def questions_edit(request, id):
             _question.correct_answer = form.cleaned_data['correct_answer']
             _question.date = form.cleaned_data['date']
             _question.author = form.cleaned_data['author']
-            _question.status = form.cleaned_data['status']
+            _question.event = form.cleaned_data['event']
             _question.save()
 
             return redirect(reverse('questions_view'))
@@ -299,10 +306,19 @@ def questions_delete(request,id):
     return redirect(reverse('questions_view'))
 
 @login_required
-def questions_pending(request,id):
+def questions_determined(request,id):
     
     question = Questions.objects.get(id=id)
-    question.status = 'pending'
+    question.result = 'determined'
+    question.save()
+    
+    return redirect(reverse('questions_view'))
+
+@login_required
+def questions_undetermined(request,id):
+    
+    question = Questions.objects.get(id=id)
+    question.result = 'undetermined'
     question.save()
     
     return redirect(reverse('questions_view'))
@@ -337,16 +353,17 @@ def questions_result(request,id):
     _question = Questions.objects.get(id=id)
 
     _answers = Answers.objects.filter(question=_question).annotate(
-        closest=ExpressionWrapper(F('answer') - F('question__correct_answer'), output_field=FloatField())
-    ).order_by('-closest')
+        closest=ExpressionWrapper( Abs(F('answer') - F('question__correct_answer')), output_field=FloatField())
+    ).order_by('closest')
     
     
     _first_three = _answers[0:3]
-    _winner = _answers[0]
+    _winner = _answers.first()
     _last_one = _answers.last()
 
     _podium = list(_first_three) + [_last_one]
 
+    params['question'] = _question
     params['winner'] = _winner
     params['first_three'] = _first_three
     params['last_one'] = _last_one
@@ -359,7 +376,6 @@ def questions_result(request,id):
     
     return render(request,'questions_result.html',params)
 
-
 @login_required
 def answers_view(request):
     params = {}
@@ -368,14 +384,17 @@ def answers_view(request):
 
         form = FormSearchAnswers(request.POST)
 
+        _event = request.POST['event']
         _question = request.POST['question']
         _answer = request.POST['answer']
         _player = request.POST['player']
 
         params['answers'] = Answers.objects.filter(
-           Q(player__first_name__icontains = _player) | Q(player__last_name__icontains = _player) ,
+           player__user = _player ,
            answer__icontains = _answer,
-           question__question__icontains = _question
+           question__question__icontains = _question,
+           question__event__id__icontains = _event
+
         )
 
         params['form'] = form
@@ -390,6 +409,40 @@ def answers_view(request):
         params['form'] = form
 
     return render(request,'answers.html',params)
+
+@login_required
+def answersPlayer_view(request):
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormSearchAnswers(request.POST)
+        
+        _event = request.POST['event']
+        _question = request.POST['question']
+        _answer = request.POST['answer']
+        _player = request.POST['player']
+
+        params['answers'] = Answers.objects.filter(
+           player__user = request.user ,
+           answer__icontains = _answer,
+           question__question__icontains = _question,
+           question__event__id__icontains = _event
+
+        )
+
+        params['form'] = form
+
+        return render(request,'answersPlayer_view.html',params)
+    
+    else:
+        
+        form = FormSearchAnswers()
+        
+        params['answers'] = Answers.objects.filter(player__user = request.user)
+        params['form'] = form
+
+    return render(request,'answersPlayer_view.html',params)
 
 @login_required
 def answersPlayer_add(request):
@@ -434,6 +487,25 @@ def answersPlayer_add(request):
         params['form'] = form
 
         return render(request,'answersPlayer_add.html',params)
+
+@login_required
+def eventsPlayer_view(request):
+    params = {}
+
+    _events = Event.objects.all()
+    _event_questions = {event: Questions.objects.filter(event=event) for event in _events}
+    _event_questions = {
+        event: Questions.objects.filter(event=event).annotate(has_answer=Exists(Answers.objects.filter(question=OuterRef('pk'), player__user=request.user))).prefetch_related(Prefetch('answers_set', queryset=Answers.objects.filter(player__user=request.user), to_attr='user_answers'))
+        for event in _events
+    }
+
+
+    params['events'] = _events
+    params['event_questions'] = _event_questions
+
+
+    return render(request,'eventsPlayer_view.html',params)
+
 
 def signin(request):
     

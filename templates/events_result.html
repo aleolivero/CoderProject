@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load humanize %}
+{% load custom_tags %}
+{% block content %}
+
+
+<div class="container d-flex align-items-center justify-content-center flex-column ">  
+    
+    
+    <div class="container">
+        <div class="row justify-content-center mt-5 mb-3 align-items-end">
+            <div class="col-2 text-center">
+                <div class="position-relative">
+                    <img src="{% static 'img/silver1.png' %}" alt="Laurel" class="position-absolute laurel-silver" style="z-index: 2;">
+                    <div class="bg-silver rounded-circle p-1 mx-auto mb-3 shadow" style="width: 170px; height: 170px; z-index: 1; position: relative;">
+                        <img src='{{podium.1.player.image|url}}' alt="Silver" class="w-100 h-100 avatar-podium">
+                    </div>
+                </div>
+                <h4 class="mb-0">{{podium.1.player.user}}</h4>
+                <p></p>
+            </div>
+            <div class="col-3 text-center">
+                <div class="position-relative">
+                    <img src="{% static 'img/gold1.png' %}" alt="" class="position-absolute laurel-gold" style="z-index: 2;">
+                    <div class="bg-gold rounded-circle p-1 mx-auto mb-4 shadow" style="width: 230px; height: 230px; z-index: 1; position: relative;">
+                        <img src='{{podium.0.player.image|url}}' alt="Gold" class="w-100 h-100 avatar-podium">
+                    </div>
+                </div>
+                <h3 class="mb-0">{{podium.0.player.user}}</h3>
+                <p></p>
+            </div>
+            <div class="col-2 text-center">
+                <div class="position-relative">
+                    <img src="{% static 'img/bronze.png' %}" alt="Laurel" class="position-absolute laurel-bronze" style="z-index: 2;">
+                    <div class="bg-bronze rounded-circle p-1 mx-auto mb-3 shadow" style="width: 130px; height: 130px; z-index: 1; position: relative;">
+                        <img src='{{podium.2.player.image|url}}' alt="Bronze" class="w-100 h-100 avatar-podium">
+                    </div>
+                </div>
+                <h5 class="mb-0">{{podium.2.player.user}}</h5>
+                <p></p>
+            </div>
+        </div>
+        {% if podium.4 %}
+            <div class="row justify-content-center">
+                <div class="col-4 text-center">
+                    <div class="bg-light rounded p-1 mx-auto mb-3 shadow" style="width: 110px; height: 110px;">
+                        <img src='{{podium.4.player.image|url}}' alt="Mención Honorífica" class="w-100 h-100">
+                    </div>
+                    <h5 class="mb-0">{{podium.4.player.user}}</h5>
+                    <p>{{podium.4.player.first_name}}{{podium.4.player.last_name}}</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <table class="table align-middle mt-3 mb-0 bg-white  border border-light shadow-lg w-100 rounded-3">
+
+        <thead class="bg-light">
+            
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">User</th>
+                <th scope="col"> Answer </th>
+            </tr>
+
+        </thead>
+        
+        <tbody>
+
+            {% for answer in answers %}
+
+                {% if answer.player.user == request.user %}
+                    {% define "table-info" as current_user %}
+                {% else %}
+                    {% define "" as current_user %}
+                {% endif %}
+            
+                <tr class="{{current_user}}">
+
+                    <th scope="row">{{ forloop.counter }}</th>
+
+                    <td>
+                        <div class="d-flex align-items-center">
+
+                            <img
+                              src="{{ answer.player.image|url }}"
+                              alt=""
+                              style="width: 45px; height: 45px"
+                              class="rounded-circle"
+                              />
+
+                            <div class="ms-3">
+                                <p class="fw-bold mb-1">{{ answer.player.first_name }} {{ answer.player.last_name }} {% if forloop.counter == 1 %} <span class="badge text-bg-success">Winner</span> {% endif %} </p>
+                                <p class="text-muted mb-0">{{ answer.player.user }}</p>
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>{{ answer.answer|intcomma }}</td>
+
+                </tr>
+
+            {% endfor %}
+        
+        </tbody>
+
+    </table>
+
+
+
+</div>
+
+{% endblock %}

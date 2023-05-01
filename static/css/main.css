@@ -58,8 +58,14 @@
   height: 150%;
   /* transform: translate(-50%, -50%); */
 }
-
+.laurel-winner {
+  top: 0%;
+  left: 35%;
+  width: 30%;
+  height: 100%;
+  /* transform: translate(-50%, -50%); */
+}
 .avatar-podium{
-  border-radius: 50%;
-  object-fit: cover;
+border-radius: 50%;
+object-fit: cover;
 }

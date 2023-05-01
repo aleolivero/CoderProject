@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from Coder.models import Players, Questions, Answers
+from Coder.models import Players, Questions, Answers, Event
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -26,7 +26,6 @@ class FormPlayers(ModelForm):
         super(FormPlayers, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
-
 
 class FormSearchPlayers(ModelForm):
     class Meta:
@@ -62,7 +61,8 @@ class FormQuestions(ModelForm):
             'date',
             'correct_answer', 
             'author',
-            'status',
+            'event',
+            # 'status',
         ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
@@ -74,11 +74,14 @@ class FormSearchQuestions(ModelForm):
         fields = [
             'title',
             'category',
-            'question', 
             'date',
-            'correct_answer', 
             'author',
+            'question', 
+            'correct_answer', 
+            'event',
+            'question_rule',
             'status',
+            'result',
         ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
@@ -88,8 +91,6 @@ class FormSearchQuestions(ModelForm):
         super(FormSearchQuestions, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
-
-
 
 class FormAnswersPlayer(ModelForm):
     class Meta:
@@ -109,19 +110,20 @@ class FormAnswersPlayer(ModelForm):
             self.fields['question'].queryset = open_questions
 
 class FormSearchAnswers(ModelForm):
+
+    event = forms.ModelChoiceField(queryset=Event.objects.all())
     class Meta:
         model = Answers
         fields = [
+            'event',
             'question', 
-            'answer',
             'player', 
+            'answer',
         ]
     def __init__(self, *args, **kwargs):
         super(FormSearchAnswers, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = False
-
-
 
 class SignUpForm(UserCreationForm):
     

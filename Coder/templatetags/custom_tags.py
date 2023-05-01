@@ -23,3 +23,7 @@ def url(attr):
         _url = '/media/players/default/default.png'
 
     return _url
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
