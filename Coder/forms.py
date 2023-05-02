@@ -62,6 +62,7 @@ class FormQuestions(ModelForm):
             'correct_answer', 
             'author',
             'event',
+            'question_rule'
             # 'status',
         ]
         widgets = {
@@ -93,21 +94,57 @@ class FormSearchQuestions(ModelForm):
             field.required = False
 
 class FormAnswersPlayer(ModelForm):
+    
+    question_text = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'readonly': True}),
+        required=False,
+        label="Question"
+    )
+
+
     class Meta:
         model = Answers
         fields = [
+            'question_text',
             'question', 
             'answer',
         ]
         widgets = {
-            'question': forms.Select(attrs={'class': 'form-control'}),
+            'question': forms.HiddenInput(attrs={'class': 'form-control','readonly': True}),
             'answer': forms.TextInput(attrs={'class': 'form-control'}),
         }
     def __init__(self, *args, **kwargs):
-        open_questions = kwargs.pop('open_questions', None)
+        question = kwargs.pop('question', None)
+
         super(FormAnswersPlayer, self).__init__(*args, **kwargs)
-        if open_questions is not None:
-            self.fields['question'].queryset = open_questions
+        if question is not None:
+            self.fields['question'].initial = question
+            self.fields['question'].label = ""
+            self.fields['question_text'].initial = str(question)
+
+
+class FormQuestionsPlayers(ModelForm):
+    class Meta:
+        model = Questions
+        fields = [
+            'title',
+            'category',
+            'question', 
+            'date',
+            'correct_answer', 
+            # 'author',
+            'event',
+            # 'status',
+        ]
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        open_events = Event.objects.filter(status='open')
+        self.fields['event'].queryset = open_events
+
 
 class FormSearchAnswers(ModelForm):
 

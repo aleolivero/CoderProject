@@ -26,21 +26,25 @@
                 <ul class="navbar-nav ms-5">
 
                     <!-- Answers -->
-                    <li class="nav-item dropdown">
-                
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    <li class="nav-item ">
+
+                        <a class="nav-link " href="{% url 'answersPlayerView' %}" role="button">
                             Answers
                         </a>
                     
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'answersPlayerView' %}">View</a></li>
-                            <li><a class="dropdown-item" href="{% url 'answersPlayerAdd' %}">Add</a></li>
-                        </ul>
+                    </li>
+
+                    <!-- Questions -->
+
+                    <li class="nav-item ">
+
+                        <a class="nav-link " href="{% url 'questionsPlayerView' %}" role="button">
+                            Questions
+                        </a>
                     
                     </li>
-                    
-                    </li>
-                
+
                     <!-- Event -->
                     <li class="nav-item ">
                 
@@ -49,7 +53,14 @@
                         </a>
                     
                     </li>
+                    <!-- Scores -->
+                    <li class="nav-item ">
                 
+                        <a class="nav-link " href="{% url 'playerScorePlayerView' %}" role="button">
+                            Scores
+                        </a>
+                    
+                    </li>                
 
                 </ul>
                 {% endif %}

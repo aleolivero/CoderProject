@@ -125,6 +125,7 @@ class Answers(models.Model):
     
 class PlayerScore(models.Model):
     winner_answer = models.ForeignKey(Answers,blank=False,null=True,on_delete=models.CASCADE, verbose_name="winner_answer")
+    points = models.FloatField(verbose_name="Points",default=0)
 
 
 

@@ -12,25 +12,36 @@ urlpatterns = [
     path('playersEdit/<id>', views.players_edit, name='players_edit'),
     path('playersDelete/<id>', views.players_delete, name='players_delete'),
 
-    
     path('answers/', views.answers_view, name='answers_view'),
-    path('answersPlayerAdd/', views.answersPlayer_add, name='answersPlayerAdd'),
+
+    path('answersPlayerAdd/<id>', views.answersPlayer_add, name='answersPlayerAdd'),
+    path('answersPlayerEdit/<id>', views.answersPlayer_edit, name='answersPlayerEdit'),
+    path('answersPlayerDelete/<id>', views.answersPlayer_delete, name='answersPlayerDelete'),
     path('answersPlayerView/', views.answersPlayer_view, name='answersPlayerView'),
 
     path('eventsPlayerView/', views.eventsPlayer_view, name='eventsPlayerView'),
+    path('eventsPlayerResult/<id>', views.eventsPlayer_result, name='eventsPlayerResult'),
+    
+    path('eventsClosed/<id>', views.events_closed, name='events_closed'),
+    path('eventsOpen/<id>', views.events_open, name='events_open'),
 
+    path('playerScorePlayerView/', views.playerScorePlayer_view, name='playerScorePlayerView'),
 
     path('questions/', views.questions_view, name='questions_view'),
     path('questionsAdd/', views.questions_add, name='questions_add'),
     path('questionsEdit/<id>', views.questions_edit, name='questions_edit'),
     path('questionsDelete/<id>', views.questions_delete, name='questions_delete'),
-    path('questionsDetermined/<id>', views.questions_determined, name='questions_determined'),
-    path('questionsUndetermined/<id>', views.questions_undetermined, name='questions_undetermined'),
+    
+    path('questionsPlayer/', views.questionsPlayer_view, name='questionsPlayerView'),
+    path('questionsPlayerAdd/', views.questionsPlayer_add, name='questionsPlayerAdd'),
+    path('questionsPlayerEdit/<id>', views.questionsPlayer_edit, name='questionsPlayerEdit'),
+    path('questionsPlayerDelete/<id>', views.questionsPlayer_delete, name='questionsPlayerDelete'),
+    path('questionsPlayerResult/<id>', views.questionsPlayer_result, name='questionsPlayerResult'),
 
     path('questionsClosed/<id>', views.questions_closed, name='questions_closed'),
     path('questionsOpen/<id>', views.questions_open, name='questions_open'),
-    path('questionsResult/<id>', views.questions_result, name='questions_result'),
-
+    path('questionsDetermined/<id>', views.questions_determined, name='questions_determined'),
+    path('questionsUndetermined/<id>', views.questions_undetermined, name='questions_undetermined'),
 
     path('signin/', views.signin, name='signin'),
     path('signup/', views.signup, name='signup'),

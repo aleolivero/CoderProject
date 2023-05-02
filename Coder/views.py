@@ -1,8 +1,8 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions, PlayerScore, Event, QuestionsRules
-from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers
-from django.db.models import Q, F, FloatField, ExpressionWrapper, DateField, CharField,Exists, OuterRef, Prefetch
+from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers,FormQuestionsPlayers
+from django.db.models import Q, F, FloatField, ExpressionWrapper, DateField, CharField,Exists, OuterRef, Prefetch, Sum
 from django.db.models.functions import Cast, Abs
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
@@ -14,12 +14,75 @@ import os
 def is_admin(user):
     return user.is_authenticated and user.is_staff
 
+
+def calculateQuestionPoints(questionID, params):
+    _points = 0
+    _question = Questions.objects.get(id=questionID)
+    _rules = _question.question_rule
+    
+    if params['exact_answer']:
+        _points += _rules.bonus_exact_answer
+    
+    if params['draw']:
+        if _rules.allows_draw:
+            _points += _rules.points_draw
+        else:
+            _points = 0
+    else:
+        _points += _rules.points
+    
+    return _points
+
+
+def calculateQuestionResult(questionID):
+
+    params = {}
+
+    _question = Questions.objects.get(id=questionID)
+
+    _answers = Answers.objects.filter(question=_question).annotate(
+        closest=ExpressionWrapper( Abs(F('answer') - F('question__correct_answer')), output_field=FloatField())
+    ).order_by('closest')
+    
+    _winner_value = _answers.first().answer if _answers else None
+    _answers_winner = _answers.filter(answer=_winner_value)
+
+    _draw = len(_answers_winner) > 1
+    _exact_answer = _winner_value == _question.correct_answer
+
+    params['question'] = _question
+    params['winner'] = _answers_winner
+    params['answers'] = _answers
+    params['parameters_result'] = {'draw':_draw,'exact_answer':_exact_answer}
+
+    params['points'] = calculateQuestionPoints(questionID, params['parameters_result'])
+
+    return params
+
+def anotateQuestionResult(params):
+    
+    for winner in params['winner']:
+        _newScore = PlayerScore(
+            winner_answer = winner,
+            points = params['points']
+        )
+        _newScore.save()
+
+def dropQuestionResult(id):
+
+    _scores = PlayerScore.objects.filter(winner_answer__question__id = id )
+
+    for _score in _scores:
+        _score.delete()
+
+
+
 @login_required
 def index(request):
 
     params = {}
 
-    return render(request,'index.html',params)
+    return render(request,'indexPlayer.html',params)
 
 @user_passes_test(is_admin)
 def players_view(request):
@@ -110,7 +173,6 @@ def players_add(request):
         
         return render(request,'players_add.html', params)
 
-
 @login_required
 def players_edit(request, id):
 
@@ -156,7 +218,6 @@ def players_edit(request, id):
         
         return render(request,'players_edit.html', params)
 
-
 @login_required
 def players_delete(request,id):
 
@@ -196,7 +257,7 @@ def questions_view(request):
             result__icontains = _result,
             event__id__icontains = _event,
             question_rule__id__icontains = _question_rule,
-        )
+        ).order_by('-date')
 
         params['form'] = form
 
@@ -206,10 +267,56 @@ def questions_view(request):
         
         form = FormSearchQuestions()
         
-        params['questions'] = Questions.objects.all()
+        params['questions'] = Questions.objects.all().order_by('-date')
         params['form'] = form
 
     return render(request,'questions.html',params)
+
+@login_required
+def questionsPlayer_view(request):
+    params = {}
+
+    if request.method == 'POST':
+
+        print(request.POST)
+        form = FormSearchQuestions(request.POST)
+
+        _title = request.POST['title']
+        _category = request.POST['category']
+        _date = request.POST['date']
+        _author = request.POST['author']       
+        _question = request.POST['question']
+        _correct_answer = request.POST['correct_answer']
+        _status = request.POST['status']
+        _event = request.POST['event']
+        _question_rule = request.POST['question_rule']
+        _result =  request.POST['result']
+
+        params['questions'] = Questions.objects.filter(
+            title__icontains = _title,
+            category__icontains = _category,
+            date__icontains = _date,
+            author__user__id__icontains = _author,
+            question__icontains = _question,
+            correct_answer__icontains = _correct_answer,
+            status__icontains = _status,
+            result__icontains = _result,
+            event__id__icontains = _event,
+            question_rule__id__icontains = _question_rule,
+        ).order_by('-date')
+
+        params['form'] = form
+
+        return render(request,'questionsPlayer_view.html',params)
+    
+    else:
+        
+        form = FormSearchQuestions()
+        
+        params['questions'] = Questions.objects.filter(author__user = request.user).order_by('-date')
+        params['form'] = form
+
+    return render(request,'questionsPlayer_view.html',params)
 
 @login_required
 def questions_add(request):
@@ -231,6 +338,7 @@ def questions_add(request):
             _author = form.cleaned_data['author']
             # _status = form.cleaned_data['status']
             _event = form.cleaned_data['event']
+            _question_rule = form.cleaned_data['question_rule']
 
             _newQuestion = Questions(
                 title = _title,
@@ -240,6 +348,7 @@ def questions_add(request):
                 date = _date,
                 author = _author,
                 event = _event,
+                question_rule = _question_rule
                 )
 
             _newQuestion.save()
@@ -264,6 +373,58 @@ def questions_add(request):
         return render(request,'questions_add.html',params)
 
 @login_required
+def questionsPlayer_add(request):
+    params = {}
+
+    # User sends data to server
+    if request.method == 'POST':
+
+        form = FormQuestionsPlayers(request.POST)
+
+        #Data valid
+        if form.is_valid():
+
+            _title = form.cleaned_data['title']
+            _category = form.cleaned_data['category']
+            _question = form.cleaned_data['question']
+            _correct_answer = form.cleaned_data['correct_answer']
+            _date = form.cleaned_data['date']
+            _author = Players.objects.get(user=request.user)
+            # _status = form.cleaned_data['status']
+            _event = form.cleaned_data['event']
+
+            _newQuestion = Questions(
+                title = _title,
+                category = _category,
+                question = _question, 
+                correct_answer = _correct_answer,
+                date = _date,
+                author = _author,
+                event = _event,
+                )
+
+            _newQuestion.save()
+
+            return redirect(reverse('questionsPlayerView'))
+
+        
+        #Data no valid
+        else:
+            params['form'] = form
+
+            return render(request,'questionsPlayer_add.html',params)
+
+
+    # User asks data to server
+    else:
+        
+        form = FormQuestionsPlayers()
+        
+        params['form'] = form
+
+        return render(request,'questionsPlayer_add.html',params)
+
+@login_required
 def questions_edit(request, id):
 
     params = {}
@@ -283,6 +444,7 @@ def questions_edit(request, id):
             _question.date = form.cleaned_data['date']
             _question.author = form.cleaned_data['author']
             _question.event = form.cleaned_data['event']
+            _question.question_rule = form.cleaned_data['question_rule']
             _question.save()
 
             return redirect(reverse('questions_view'))
@@ -298,6 +460,40 @@ def questions_edit(request, id):
         return render(request,'questions_edit.html', params)
 
 @login_required
+def questionsPlayer_edit(request, id):
+
+    params = {}
+    _question = Questions.objects.get(id=id)
+
+    if request.method == 'POST':
+
+        form = FormQuestionsPlayers(request.POST)
+        
+        params['form'] = form
+
+        if form.is_valid():
+            _question.title = form.cleaned_data['title']
+            _question.category = form.cleaned_data['category']
+            _question.question = form.cleaned_data['question']
+            _question.correct_answer = form.cleaned_data['correct_answer']
+            _question.date = form.cleaned_data['date']
+            _question.author = Players.objects.get(user=request.user)
+            _question.event = form.cleaned_data['event']
+            _question.save()
+
+            return redirect(reverse('questionsPlayerView'))
+        else:
+
+            return render(request,'questionsPlayer_edit.html', params)
+    
+    else:
+        form = FormQuestionsPlayers(instance=_question)
+        
+        params['form'] = form
+        
+        return render(request,'questionsPlayer_edit.html', params)
+
+@login_required
 def questions_delete(request,id):
     
     question = Questions.objects.get(id=id)
@@ -306,13 +502,27 @@ def questions_delete(request,id):
     return redirect(reverse('questions_view'))
 
 @login_required
+def questionsPlayer_delete(request,id):
+    
+    question = Questions.objects.get(id=id)
+    question = question.delete()
+    
+    return redirect(reverse('questionsPlayerView'))
+
+@login_required
 def questions_determined(request,id):
     
     question = Questions.objects.get(id=id)
     question.result = 'determined'
     question.save()
-    
-    return redirect(reverse('questions_view'))
+
+    params = calculateQuestionResult(id)
+    anotateQuestionResult(params)
+
+    if request.user.is_staff:
+        return redirect(reverse('questions_view'))
+
+    return redirect(reverse('questionsPlayerView'))
 
 @login_required
 def questions_undetermined(request,id):
@@ -320,8 +530,12 @@ def questions_undetermined(request,id):
     question = Questions.objects.get(id=id)
     question.result = 'undetermined'
     question.save()
+    dropQuestionResult(id)
     
-    return redirect(reverse('questions_view'))
+    if request.user.is_staff:
+        return redirect(reverse('questions_view'))
+
+    return redirect(reverse('questionsPlayerView'))
 
 @login_required
 def questions_closed(request,id):
@@ -331,11 +545,11 @@ def questions_closed(request,id):
     _question.save()
 
     list_answers = Answers.objects.filter(question=_question)
+  
+    if request.user.is_staff:
+        return redirect(reverse('questions_view'))
 
-
-
-    
-    return redirect(reverse('questions_view'))
+    return redirect(reverse('questionsPlayerView'))
 
 @login_required
 def questions_open(request,id):
@@ -344,37 +558,17 @@ def questions_open(request,id):
     question.status = 'open'
     question.save()
     
-    return redirect(reverse('questions_view'))
+    if request.user.is_staff:
+        return redirect(reverse('questions_view'))
+
+    return redirect(reverse('questionsPlayerView'))
 
 @login_required
-def questions_result(request,id):
-    params = {}
-
-    _question = Questions.objects.get(id=id)
-
-    _answers = Answers.objects.filter(question=_question).annotate(
-        closest=ExpressionWrapper( Abs(F('answer') - F('question__correct_answer')), output_field=FloatField())
-    ).order_by('closest')
+def questionsPlayer_result(request,id):
     
-    
-    _first_three = _answers[0:3]
-    _winner = _answers.first()
-    _last_one = _answers.last()
-
-    _podium = list(_first_three) + [_last_one]
-
-    params['question'] = _question
-    params['winner'] = _winner
-    params['first_three'] = _first_three
-    params['last_one'] = _last_one
-    params['podium'] = _podium
-
-
-    params['answers'] = _answers
-
-
-    
-    return render(request,'questions_result.html',params)
+    params = calculateQuestionResult(id)
+   
+    return render(request,'questionsPlayer_result.html',params)
 
 @login_required
 def answers_view(request):
@@ -445,15 +639,15 @@ def answersPlayer_view(request):
     return render(request,'answersPlayer_view.html',params)
 
 @login_required
-def answersPlayer_add(request):
+def answersPlayer_add(request, id):
     params = {}
-    open_questions = Questions.objects.filter(status = 'open' ) 
+    _question = Questions.objects.get(id=id)
 
     # User sends data to server
     if request.method == 'POST':
 
 
-        form = FormAnswersPlayer(request.POST,open_questions=open_questions)
+        form = FormAnswersPlayer(request.POST,question=_question)
 
         #Data valid
         if form.is_valid():
@@ -469,7 +663,7 @@ def answersPlayer_add(request):
 
             _newAnswer.save()
 
-            return HttpResponseRedirect('/Coder/answers')
+            return redirect(reverse('eventsPlayerView'))
 
         
         #Data no valid
@@ -482,20 +676,67 @@ def answersPlayer_add(request):
     # User asks data to server
     else:
         
-        form = FormAnswersPlayer(open_questions=open_questions)
+        form = FormAnswersPlayer(question=_question)
         
         params['form'] = form
 
         return render(request,'answersPlayer_add.html',params)
 
 @login_required
+def answersPlayer_edit(request, id):
+    params = {}
+    _answer = Answers.objects.get(pk=id)
+    _question = _answer.question
+    
+
+    # User sends data to server
+    if request.method == 'POST':
+
+
+        form = FormAnswersPlayer(request.POST,question=_question)
+
+        #Data valid
+        if form.is_valid():
+
+            _answer.answer = form.cleaned_data['answer']
+
+            _answer.save()
+
+            return redirect(reverse('eventsPlayerView'))
+
+        
+        #Data no valid
+        else:
+            params['form'] = form
+
+            return render(request,'answersPlayer_edit.html',params)
+
+
+    # User asks data to server
+    else:
+        
+        form = FormAnswersPlayer(instance=_answer,question=_question)
+        
+        params['form'] = form
+
+        return render(request,'answersPlayer_edit.html',params)
+
+@login_required
+def answersPlayer_delete(request, id):
+    params = {}
+
+    _answer = Answers.objects.get(pk=id)
+    _answer.delete()
+    
+    return redirect(reverse('eventsPlayerView'))
+
+@login_required
 def eventsPlayer_view(request):
     params = {}
 
     _events = Event.objects.all()
-    _event_questions = {event: Questions.objects.filter(event=event) for event in _events}
     _event_questions = {
-        event: Questions.objects.filter(event=event).annotate(has_answer=Exists(Answers.objects.filter(question=OuterRef('pk'), player__user=request.user))).prefetch_related(Prefetch('answers_set', queryset=Answers.objects.filter(player__user=request.user), to_attr='user_answers'))
+        event: Questions.objects.filter(event=event).order_by('-date').annotate(has_answer=Exists(Answers.objects.filter(question=OuterRef('pk'), player__user=request.user))).prefetch_related(Prefetch('answers_set', queryset=Answers.objects.filter(player__user=request.user), to_attr='user_answers'))
         for event in _events
     }
 
@@ -506,6 +747,50 @@ def eventsPlayer_view(request):
 
     return render(request,'eventsPlayer_view.html',params)
 
+@login_required
+def eventsPlayer_result(request, id):
+    params = {}
+    
+    _event = Event.objects.get(pk=id)
+
+    _scores = (PlayerScore.objects.filter(winner_answer__question__event__id=id)
+              .values('winner_answer__player')
+              .annotate(total_points=Sum('points'))
+              .order_by('-total_points'))
+    
+    players_with_points = []
+
+    for score in _scores:
+        player = Players.objects.get(pk=score['winner_answer__player'])
+        total_points = score['total_points']
+        players_with_points.append({'player':player, 'total_points':total_points})
+
+
+
+
+    params['event'] = _event
+    params['scores'] = players_with_points
+    params['podium'] = players_with_points[0:3]
+    
+
+    return render(request,'eventsPlayer_result.html',params)
+
+@login_required
+def playerScorePlayer_view(request):
+    params = {}
+
+    _events = Event.objects.all()
+    _event_scores = {
+        event: PlayerScore.objects.filter(winner_answer__question__event=event).order_by('-winner_answer__question__date')
+        for event in _events
+    }
+
+
+    params['events'] = _events
+    params['event_scores'] = _event_scores
+
+
+    return render(request,'playerScorePlayer_view.html',params)
 
 def signin(request):
     
@@ -664,3 +949,21 @@ def editProfile(request):
         params['form'] = form
         
         return render(request,'editProfile.html', params)
+
+@login_required
+def events_closed(request,id):
+    
+    _event = Event.objects.get(id=id)
+    _event.status = 'closed'
+    _event.save()
+
+    return redirect(reverse('eventsPlayerView'))
+
+@login_required
+def events_open(request,id):
+    
+    _event = Event.objects.get(id=id)
+    _event.status = 'open'
+    _event.save()
+
+    return redirect(reverse('eventsPlayerView'))
