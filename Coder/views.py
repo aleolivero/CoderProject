@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions, PlayerScore, Event, QuestionsRules
-from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers,FormQuestionsPlayers
+from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers,FormQuestionsPlayers,FormAnswers
 from django.db.models import Q, F, FloatField, ExpressionWrapper, DateField, CharField,Exists, OuterRef, Prefetch, Sum
 from django.db.models.functions import Cast, Abs
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -13,7 +13,6 @@ import os
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
-
 
 def calculateQuestionPoints(questionID, params):
     _points = 0
@@ -32,7 +31,6 @@ def calculateQuestionPoints(questionID, params):
         _points += _rules.points
     
     return _points
-
 
 def calculateQuestionResult(questionID):
 
@@ -75,8 +73,6 @@ def dropQuestionResult(id):
     for _score in _scores:
         _score.delete()
 
-
-
 @login_required
 def index(request):
 
@@ -91,7 +87,7 @@ def players_view(request):
     if request.method == 'POST':
 
         form = FormSearchPlayers(request.POST)
-
+        print(request.POST)
         _first_name = request.POST['first_name']
         _last_name = request.POST['last_name']
         _date_birth = request.POST['date_birth']
@@ -115,7 +111,7 @@ def players_view(request):
 
         params['form'] = form
 
-        return render(request,'players.html',params)
+        return render(request,'players_view.html',params)
     
     else:
         
@@ -124,7 +120,7 @@ def players_view(request):
         params['players'] = Players.objects.all().annotate(date_birth_str=Cast('date_birth', output_field=CharField()),)
         params['form'] = form
 
-    return render(request,'players.html',params)
+    return render(request,'players_view.html',params)
 
 @login_required
 def players_add(request):
@@ -178,7 +174,7 @@ def players_edit(request, id):
 
     params = {}
 
-    _player = Players.objects.get(user__id = id)
+    _player = Players.objects.get(id = id)
 
     if request.method == 'POST':
 
@@ -261,7 +257,7 @@ def questions_view(request):
 
         params['form'] = form
 
-        return render(request,'questions.html',params)
+        return render(request,'questions_view.html',params)
     
     else:
         
@@ -270,7 +266,7 @@ def questions_view(request):
         params['questions'] = Questions.objects.all().order_by('-date')
         params['form'] = form
 
-    return render(request,'questions.html',params)
+    return render(request,'questions_view.html',params)
 
 @login_required
 def questionsPlayer_view(request):
@@ -579,21 +575,22 @@ def answers_view(request):
         form = FormSearchAnswers(request.POST)
 
         _event = request.POST['event']
-        _question = request.POST['question']
+        # _question = request.POST['question']
+        _question_text = request.POST['question_text']
         _answer = request.POST['answer']
         _player = request.POST['player']
 
         params['answers'] = Answers.objects.filter(
-           player__user = _player ,
+           player__id__icontains = _player ,
            answer__icontains = _answer,
-           question__question__icontains = _question,
+           question__question__icontains = _question_text,
            question__event__id__icontains = _event
 
         )
 
         params['form'] = form
 
-        return render(request,'answers.html',params)
+        return render(request,'answers_view.html',params)
     
     else:
         
@@ -602,7 +599,84 @@ def answers_view(request):
         params['answers'] = Answers.objects.all()
         params['form'] = form
 
-    return render(request,'answers.html',params)
+    return render(request,'answers_view.html',params)
+
+@login_required
+def answers_add(request):
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormAnswers(request.POST)
+
+        if form.is_valid():
+
+            _question = form.cleaned_data['question']
+            _answer = form.cleaned_data['answer']
+            _player = form.cleaned_data['player']
+
+            _newAnswer = Answers(question = _question, 
+                                 answer = _answer, 
+                                 player = _player,
+                                )
+
+            _newAnswer.save()
+
+            return redirect(reverse('answers_view'))
+
+        else:
+            params['form'] = form
+
+            return render(request,'answers_add.html',params)
+
+    else:
+        
+        form = FormAnswers()
+        
+        params['form'] = form
+
+        return render(request,'answers_add.html',params)
+
+@login_required
+def answers_edit(request, id):
+    params = {}
+    _answer = Answers.objects.get(pk=id)
+
+    if request.method == 'POST':
+
+        form = FormAnswers(request.POST,)
+
+        if form.is_valid():
+
+            _answer.player = form.cleaned_data['player']
+            _answer.question = form.cleaned_data['question']
+            _answer.answer = form.cleaned_data['answer']
+
+            _answer.save()
+
+            return redirect(reverse('answers_view'))
+
+        else:
+            params['form'] = form
+
+            return render(request,'answers_edit.html',params)
+
+    else:
+        
+        form = FormAnswers(instance=_answer,)
+        
+        params['form'] = form
+
+        return render(request,'answers_edit.html',params)
+
+@login_required
+def answers_delete(request, id):
+    params = {}
+
+    _answer = Answers.objects.get(pk=id)
+    _answer.delete()
+    
+    return redirect(reverse('answers_delete'))
 
 @login_required
 def answersPlayer_view(request):
@@ -613,14 +687,15 @@ def answersPlayer_view(request):
         form = FormSearchAnswers(request.POST)
         
         _event = request.POST['event']
-        _question = request.POST['question']
+        # _question = request.POST['question']
+        _question_text = request.POST['question_text']
         _answer = request.POST['answer']
-        _player = request.POST['player']
+        # _player = request.POST['player']
 
         params['answers'] = Answers.objects.filter(
            player__user = request.user ,
            answer__icontains = _answer,
-           question__question__icontains = _question,
+           question__question__icontains = _question_text,
            question__event__id__icontains = _event
 
         )

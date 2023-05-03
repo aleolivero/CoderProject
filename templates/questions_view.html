@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout_player.html" %}
 {% load static %}
 {% load humanize %}
 {% load custom_tags %}
@@ -10,7 +10,7 @@
 <div class="container-fluid d-flex align-items-center flex-column mt-5 mb-5 px-5" >  
 
     <div class="d-flex justify-content-end w-100">
-        <a class="btn btn-primary mb-3" href="{% url 'questions_add' %}">Add Question</a>
+        <a class="btn btn-primary mb-3" href="{% url 'questions_add' %}">Make Question</a>
     </div>
 
 

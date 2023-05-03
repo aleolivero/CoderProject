@@ -7,13 +7,27 @@ from django.contrib.auth.views import LogoutView
 urlpatterns = [
     path('', views.index, name='index'),
 
+    # STAFF
     path('players/', views.players_view, name='players_view'),
     path('playersAdd/', views.players_add, name='players_add'),
     path('playersEdit/<id>', views.players_edit, name='players_edit'),
     path('playersDelete/<id>', views.players_delete, name='players_delete'),
 
     path('answers/', views.answers_view, name='answers_view'),
+    path('answersAdd/', views.answers_add, name='answers_add'),
+    path('answersEdit/<id>', views.answers_edit, name='answers_edit'),
+    path('answersDelete/<id>', views.answers_delete, name='answers_delete'),
 
+
+    path('eventsClosed/<id>', views.events_closed, name='events_closed'),
+    path('eventsOpen/<id>', views.events_open, name='events_open'),
+
+    path('questions/', views.questions_view, name='questions_view'),
+    path('questionsAdd/', views.questions_add, name='questions_add'),
+    path('questionsEdit/<id>', views.questions_edit, name='questions_edit'),
+    path('questionsDelete/<id>', views.questions_delete, name='questions_delete'),
+    
+    # PLAYERS
     path('answersPlayerAdd/<id>', views.answersPlayer_add, name='answersPlayerAdd'),
     path('answersPlayerEdit/<id>', views.answersPlayer_edit, name='answersPlayerEdit'),
     path('answersPlayerDelete/<id>', views.answersPlayer_delete, name='answersPlayerDelete'),
@@ -22,16 +36,8 @@ urlpatterns = [
     path('eventsPlayerView/', views.eventsPlayer_view, name='eventsPlayerView'),
     path('eventsPlayerResult/<id>', views.eventsPlayer_result, name='eventsPlayerResult'),
     
-    path('eventsClosed/<id>', views.events_closed, name='events_closed'),
-    path('eventsOpen/<id>', views.events_open, name='events_open'),
-
     path('playerScorePlayerView/', views.playerScorePlayer_view, name='playerScorePlayerView'),
 
-    path('questions/', views.questions_view, name='questions_view'),
-    path('questionsAdd/', views.questions_add, name='questions_add'),
-    path('questionsEdit/<id>', views.questions_edit, name='questions_edit'),
-    path('questionsDelete/<id>', views.questions_delete, name='questions_delete'),
-    
     path('questionsPlayer/', views.questionsPlayer_view, name='questionsPlayerView'),
     path('questionsPlayerAdd/', views.questionsPlayer_add, name='questionsPlayerAdd'),
     path('questionsPlayerEdit/<id>', views.questionsPlayer_edit, name='questionsPlayerEdit'),

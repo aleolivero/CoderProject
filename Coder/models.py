@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.html import format_html
-
+from datetime import date
 # Create your models here.
 
 class Players(models.Model):
@@ -10,7 +10,7 @@ class Players(models.Model):
     image = models.ImageField(upload_to='players')
     first_name = models.CharField(max_length=100, verbose_name="First Name")
     last_name = models.CharField(max_length=100, verbose_name="Last Name")
-    date_birth = models.DateField(blank=True,null=True, verbose_name="Birth",)
+    date_birth = models.DateField(blank=True,null=True, verbose_name="Birth",default=date(2000, 1, 1))
     phone = models.CharField(max_length=100, verbose_name="Phone")
     adress = models.CharField(max_length=100, verbose_name="Adress")
     city = models.CharField(max_length=100, verbose_name="City")
