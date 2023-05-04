@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 import os
 # Create your views here.
 
-def is_admin(user):
+def is_staff(user):
     return user.is_authenticated and user.is_staff
 
 def calculateQuestionPoints(questionID, params):
@@ -80,7 +80,7 @@ def index(request):
 
     return render(request,'indexPlayer.html',params)
 
-@user_passes_test(is_admin)
+@user_passes_test(is_staff,login_url='/')
 def players_view(request):
     params = {}
 
@@ -122,7 +122,7 @@ def players_view(request):
 
     return render(request,'players_view.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def players_add(request):
 
     params = {}
@@ -169,7 +169,7 @@ def players_add(request):
         
         return render(request,'players_add.html', params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def players_edit(request, id):
 
     params = {}
@@ -214,7 +214,7 @@ def players_edit(request, id):
         
         return render(request,'players_edit.html', params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def players_delete(request,id):
 
     player = Players.objects.get(id=id)
@@ -222,7 +222,7 @@ def players_delete(request,id):
     
     return redirect(reverse('players_view'))
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def questions_view(request):
     params = {}
 
@@ -314,7 +314,7 @@ def questionsPlayer_view(request):
 
     return render(request,'questionsPlayer_view.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def questions_add(request):
     params = {}
 
@@ -420,7 +420,7 @@ def questionsPlayer_add(request):
 
         return render(request,'questionsPlayer_add.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def questions_edit(request, id):
 
     params = {}
@@ -489,7 +489,7 @@ def questionsPlayer_edit(request, id):
         
         return render(request,'questionsPlayer_edit.html', params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def questions_delete(request,id):
     
     question = Questions.objects.get(id=id)
@@ -566,7 +566,7 @@ def questionsPlayer_result(request,id):
    
     return render(request,'questionsPlayer_result.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def answers_view(request):
     params = {}
 
@@ -601,7 +601,7 @@ def answers_view(request):
 
     return render(request,'answers_view.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def answers_add(request):
     params = {}
 
@@ -637,7 +637,7 @@ def answers_add(request):
 
         return render(request,'answers_add.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def answers_edit(request, id):
     params = {}
     _answer = Answers.objects.get(pk=id)
@@ -669,7 +669,7 @@ def answers_edit(request, id):
 
         return render(request,'answers_edit.html',params)
 
-@login_required
+@user_passes_test(is_staff,login_url='/')
 def answers_delete(request, id):
     params = {}
 
