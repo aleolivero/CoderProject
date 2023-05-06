@@ -24,7 +24,7 @@
                 <div class="row reflexion justify-content-around align-items-center">
                     <ul id="chatList" class="list-group p-0 scrollable-chat"> 
                         {% for chat in chats %} 
-                            <li class="list-group-item pe-0 {% if chat.id in chats_not_read_ids %} list-group-item-info {% endif %}" style="width: 100%;"> 
+                            <li class="list-group-item pe-0 {% if chat.id in chats_not_read_ids_mark %} list-group-item-info {% endif %}" style="width: 100%;"> 
                                 <b> {{chat.sender}} </b> 
                                 ({{ chat.date }}): 
                                 {{ chat.content }} 

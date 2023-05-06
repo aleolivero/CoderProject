@@ -36,6 +36,6 @@ def exchange_view(request):
      
 
     params['form'] = form
-    params['chats_not_read_ids'] = chats_not_read_ids
+    params['chats_not_read_ids_mark'] = chats_not_read_ids
 
     return render(request, 'exchange_view.html', params)
