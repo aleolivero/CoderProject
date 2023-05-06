@@ -596,7 +596,7 @@ def answers_view(request):
         
         form = FormSearchAnswers()
         
-        params['answers'] = Answers.objects.all()
+        params['answers'] = Answers.objects.all().order_by('-id')
         params['form'] = form
 
     return render(request,'answers_view.html',params)
@@ -676,7 +676,7 @@ def answers_delete(request, id):
     _answer = Answers.objects.get(pk=id)
     _answer.delete()
     
-    return redirect(reverse('answers_delete'))
+    return redirect(reverse('answers_view'))
 
 @login_required
 def answersPlayer_view(request):
