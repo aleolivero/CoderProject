@@ -52,7 +52,13 @@
 
         </div>
 
-
+        {% if signup_success %}
+        <div class="row mb-3">
+            <div class="col d-flex justify-content-center">
+                <h5><span class="badge bg-success">Account created successfully</span></h5>
+            </div>
+        </div>
+        {% endif %}
 
     </form>
 

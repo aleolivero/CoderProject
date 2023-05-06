@@ -1002,15 +1002,15 @@ def signin(request):
     else:
         
         params = {}
-        
+
         form = AuthenticationForm()
         
         params['form'] = form
+        params['signup_success'] = request.GET.get('signup_success', None)
 
         return render(request,'signin.html', params)
 
 def signup(request):
-
     if request.method == 'POST':
         
         params = {}
@@ -1026,7 +1026,7 @@ def signup(request):
 
             form.save()
 
-            return redirect(reverse('index'))
+            return redirect(reverse('signin')+ '?signup_success=1')
 
         
         else:
