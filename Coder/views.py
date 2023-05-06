@@ -1026,7 +1026,7 @@ def signup(request):
 
             form.save()
 
-            return render(request, 'index.html', params)
+            return redirect(reverse('index'))
 
         
         else:
