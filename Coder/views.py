@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.urls import reverse
 from .models import Players, Answers, Questions, PlayerScore, Event, QuestionsRules
-from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers,FormQuestionsPlayers,FormAnswers
+from .forms import FormPlayers, FormAnswersPlayer, FormQuestions, SignUpForm, FormEditAccount, FormProfile, FormSearchQuestions, FormSearchPlayers, FormSearchAnswers,FormQuestionsPlayers,FormAnswers, FormSearchQuestionsRules, FormQuestionsRules, FormSearchEvents,FormEvents
 from django.db.models import Q, F, FloatField, ExpressionWrapper, DateField, CharField,Exists, OuterRef, Prefetch, Sum
 from django.db.models.functions import Cast, Abs
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -1044,6 +1044,244 @@ def signup(request):
         return render(request,'signup.html', params)
     
 def about(request):
+
     params = {}
 
     return render(request,'about.html',params)    
+
+
+@user_passes_test(is_staff,login_url='/')
+def questionRules_view(request):
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormSearchQuestionsRules(request.POST)
+        _name = request.POST['name']
+        _description = request.POST['description']
+        _points = request.POST['points']
+        # _bonus_exact_answer = request.POST['bonus_exact_answer']
+        # _allows_draw = request.POST['allows_draw']
+        # _allows_wildcard = request.POST['allows_wildcard'] 
+        # _points_draw = request.POST['points_draw']
+
+        params['questionRules'] = QuestionsRules.objects.filter(
+            name__icontains = _name,
+            
+            description__icontains = _description,
+            points__icontains = _points,
+            # bonus_exact_answer__icontains = _bonus_exact_answer,
+            # allows_draw__icontains = _allows_draw,
+            # allows_wild_card__icontains = _allows_wildcard,
+            # points_draw__icontains = _points_draw,
+
+        )
+
+        params['form'] = form
+
+        return render(request,'questionRules_view.html',params)
+    
+    else:
+        
+        form = FormSearchQuestionsRules()
+        
+        params['questionRules'] = QuestionsRules.objects.all()
+        params['form'] = form
+
+    return render(request,'questionRules_view.html',params)
+
+@user_passes_test(is_staff,login_url='/')
+def questionRules_add(request):
+
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormQuestionsRules(request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+            _name = form.cleaned_data['name']
+            _description = form.cleaned_data['description']
+            _points = form.cleaned_data['points']
+            _bonus_exact_answer = form.cleaned_data['bonus_exact_answer']
+            _allows_draw = form.cleaned_data['allows_draw']
+            _allows_wildcard = form.cleaned_data['allows_wildcard']
+            _points_draw = form.cleaned_data['points_draw']
+
+            _newQuestionRule = QuestionsRules(
+                name = _name,
+                description = _description,
+                points = _points,
+                bonus_exact_answer = _bonus_exact_answer,
+                allows_draw = _allows_draw,
+                allows_wildcard = _allows_wildcard,
+                points_draw = _points_draw,
+                )
+
+            _newQuestionRule.save()
+
+            return HttpResponseRedirect('/Coder/questionRules')
+        else:
+            return render(request,'questionRules_add.html', params)
+    
+    else:
+        form = FormQuestionsRules()
+        params['form'] = form
+        
+        return render(request,'questionRules_add.html', params)
+
+@user_passes_test(is_staff,login_url='/')
+def questionRules_edit(request, id):
+
+    params = {}
+
+    _questionRule = QuestionsRules.objects.get(id = id)
+
+    if request.method == 'POST':
+
+        form = FormQuestionsRules(request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+
+            _questionRule.name = form.cleaned_data['name']
+            _questionRule.description = form.cleaned_data['description']
+            _questionRule.points = form.cleaned_data['points']
+            _questionRule.bonus_exact_answer = form.cleaned_data['bonus_exact_answer']
+            _questionRule.allows_draw = form.cleaned_data['allows_draw']
+            _questionRule.allows_wildcard = form.cleaned_data['allows_wildcard']
+            _questionRule.points_draw = form.cleaned_data['points_draw']
+
+            _questionRule.save()
+
+            return redirect(reverse('questionRules_view'))
+        else:
+
+            return render(request,'questionRules_edit.html', params)
+    
+    else:
+        form = FormQuestionsRules(instance=_questionRule)
+        params['form'] = form
+        
+        return render(request,'questionRules_edit.html', params)
+
+@user_passes_test(is_staff,login_url='/')
+def questionRules_delete(request,id):
+
+    questionRule = QuestionsRules.objects.get(id=id)
+    questionRule = questionRule.delete()
+    
+    return redirect(reverse('questionRules_view'))
+
+@user_passes_test(is_staff,login_url='/')
+def events_view(request):
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormSearchEvents(request.POST)
+        _name = request.POST['name']
+        _date = request.POST['date']
+        _status = request.POST['status']
+        _result = request.POST['result']
+
+
+        params['events'] = Event.objects.filter(
+            name__icontains = _name,
+            date__icontains = _date,
+            status__icontains = _status,
+            result__icontains = _result,
+
+        )
+
+        params['form'] = form
+
+        return render(request,'events_view.html',params)
+    
+    else:
+        
+        form = FormSearchEvents()
+        
+        params['events'] = Event.objects.all()
+        params['form'] = form
+
+    return render(request,'events_view.html',params)
+
+@user_passes_test(is_staff,login_url='/')
+def events_add(request):
+
+    params = {}
+
+    if request.method == 'POST':
+
+        form = FormEvents(request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+            _name = form.cleaned_data['name']
+            _date = form.cleaned_data['date']
+            _status = form.cleaned_data['status']
+            _result = form.cleaned_data['result']
+
+            _newEvent = Event(
+                name = _name,
+                date = _date,
+                status = _status,
+                result = _result,
+                )
+
+            _newEvent.save()
+
+            return HttpResponseRedirect('/Coder/events')
+        else:
+            return render(request,'events_add.html', params)
+    
+    else:
+        form = FormEvents()
+        params['form'] = form
+        
+        return render(request,'events_add.html', params)
+
+@user_passes_test(is_staff,login_url='/')
+def events_edit(request, id):
+
+    params = {}
+
+    _event = Event.objects.get(id = id)
+
+    if request.method == 'POST':
+
+        form = FormEvents(request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+
+            _event.name = form.cleaned_data['name']
+            _event.date = form.cleaned_data['date']
+            _event.status = form.cleaned_data['status']
+            _event.result = form.cleaned_data['result']
+            _event.save()
+
+            return redirect(reverse('events_view'))
+        else:
+
+            return render(request,'events_edit.html', params)
+    
+    else:
+        form = FormEvents(instance=_event)
+        params['form'] = form
+        
+        return render(request,'events_edit.html', params)
+
+@user_passes_test(is_staff,login_url='/')
+def events_delete(request,id):
+
+    _event = Event.objects.get(id=id)
+    _event = _event.delete()
+    
+    return redirect(reverse('events_view'))

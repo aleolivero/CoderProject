@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from Coder.models import Players, Questions, Answers, Event
+from Coder.models import Players, Questions, Answers, Event, QuestionsRules
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -201,3 +201,71 @@ class FormProfile(ModelForm):
         widgets = {
             'date_birth': forms.DateInput(attrs={'type': 'date'}),
         }
+
+
+class FormSearchQuestionsRules(ModelForm):
+    description = forms.CharField(
+        widget=forms.TextInput(),
+        required=False,
+        label="Description"
+    )
+    class Meta:
+        model = QuestionsRules
+        fields = [
+            'name',
+            'description',
+            'points', 
+            # 'bonus_exact_answer',
+            # 'allows_draw', 
+            # 'allows_wildcard',
+            # 'points_draw',
+        ]
+    def __init__(self, *args, **kwargs):
+        super(FormSearchQuestionsRules, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+
+
+class FormQuestionsRules(ModelForm):
+    class Meta:
+        model = QuestionsRules
+        fields = [
+            'name',
+            'description',
+            'points', 
+            'bonus_exact_answer',
+            'allows_draw', 
+            'allows_wildcard',
+            'points_draw',
+        ]
+
+class FormSearchEvents(ModelForm):
+    class Meta:
+
+        model = Event
+        fields = [
+            'name',
+            'date', 
+            'status', 
+            'result'
+        ]
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'}),}
+
+    def __init__(self, *args, **kwargs):
+        super(FormSearchEvents, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+
+
+class FormEvents(ModelForm):
+    class Meta:
+        model = Event
+        fields = [
+            'name',
+            'date', 
+            'status', 
+            'result'
+        ]
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'}),}

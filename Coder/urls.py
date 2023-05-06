@@ -26,7 +26,17 @@ urlpatterns = [
     path('questionsAdd/', views.questions_add, name='questions_add'),
     path('questionsEdit/<id>', views.questions_edit, name='questions_edit'),
     path('questionsDelete/<id>', views.questions_delete, name='questions_delete'),
-    
+
+    path('events/', views.events_view, name='events_view'),
+    path('eventsAdd/', views.events_add, name='events_add'),
+    path('eventsEdit/<id>', views.events_edit, name='events_edit'),
+    path('eventsDelete/<id>', views.events_delete, name='events_delete'),
+
+    path('questionRules/', views.questionRules_view, name='questionRules_view'),
+    path('questionRulesAdd/', views.questionRules_add, name='questionRules_add'),
+    path('questionRulesEdit/<id>', views.questionRules_edit, name='questionRules_edit'),
+    path('questionRulesDelete/<id>', views.questionRules_delete, name='questionRules_delete'),
+   
     # PLAYERS
     path('answersPlayerAdd/<id>', views.answersPlayer_add, name='answersPlayerAdd'),
     path('answersPlayerEdit/<id>', views.answersPlayer_edit, name='answersPlayerEdit'),
