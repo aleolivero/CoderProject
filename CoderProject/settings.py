@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     #APPS
 
     'Coder.apps.CoderConfig',
+    'exchange.apps.ExchangeConfig',
+
     'widget_tweaks',
 
 ]
@@ -70,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'exchange.context_processors.chats_not_read'
             ],
         },
     },

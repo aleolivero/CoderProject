@@ -867,87 +867,6 @@ def playerScorePlayer_view(request):
 
     return render(request,'playerScorePlayer_view.html',params)
 
-def signin(request):
-    
-    if request.method == 'POST':
-        
-        params = {}
-
-        form = AuthenticationForm(request, data = request.POST)
-
-        params['form'] = form
-
-        if form.is_valid():
-
-            _data = form.cleaned_data
-            
-            _username = _data['username']
-
-            _password = _data['password']
-
-            _user = authenticate(username=_username, password = _password)
-
-            if _user is not None:
-
-                login(request,_user)
-                
-                return redirect(reverse('index'))
-
-            else:
-                
-                params['message'] = 'User or password incorrect.'
-
-                return render(request, 'signin.html',params)
-        
-        else:
-            params['message'] = 'User or password incorrect.'
-
-            return render(request, 'signin.html',params)
-        
-    else:
-        
-        params = {}
-        
-        form = AuthenticationForm()
-        
-        params['form'] = form
-
-        return render(request,'signin.html', params)
-
-def signup(request):
-
-    if request.method == 'POST':
-        
-        params = {}
-
-        form = SignUpForm(request.POST)
-
-        params['form'] = form
-
-
-        if form.is_valid():
-
-            params['signup'] = True
-
-            form.save()
-
-            return render(request, 'index.html', params)
-
-        
-        else:
-
-            return render(request, 'signup.html',params)
-        
-    else:
-        
-        params = {}
-        
-        form = SignUpForm()
-        
-        params['form'] = form
-
-        return render(request,'signup.html', params)
-    
 @login_required
 def editAccount(request):
 
@@ -1042,3 +961,89 @@ def events_open(request,id):
     _event.save()
 
     return redirect(reverse('eventsPlayerView'))
+
+def signin(request):
+    
+    if request.method == 'POST':
+        
+        params = {}
+
+        form = AuthenticationForm(request, data = request.POST)
+
+        params['form'] = form
+
+        if form.is_valid():
+
+            _data = form.cleaned_data
+            
+            _username = _data['username']
+
+            _password = _data['password']
+
+            _user = authenticate(username=_username, password = _password)
+
+            if _user is not None:
+
+                login(request,_user)
+                
+                return redirect(reverse('index'))
+
+            else:
+                
+                params['message'] = 'User or password incorrect.'
+
+                return render(request, 'signin.html',params)
+        
+        else:
+            params['message'] = 'User or password incorrect.'
+
+            return render(request, 'signin.html',params)
+        
+    else:
+        
+        params = {}
+        
+        form = AuthenticationForm()
+        
+        params['form'] = form
+
+        return render(request,'signin.html', params)
+
+def signup(request):
+
+    if request.method == 'POST':
+        
+        params = {}
+
+        form = SignUpForm(request.POST)
+
+        params['form'] = form
+
+
+        if form.is_valid():
+
+            params['signup'] = True
+
+            form.save()
+
+            return render(request, 'index.html', params)
+
+        
+        else:
+
+            return render(request, 'signup.html',params)
+        
+    else:
+        
+        params = {}
+        
+        form = SignUpForm()
+        
+        params['form'] = form
+
+        return render(request,'signup.html', params)
+    
+def about(request):
+    params = {}
+
+    return render(request,'about.html',params)    

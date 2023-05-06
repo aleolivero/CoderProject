@@ -128,7 +128,10 @@
                 </td>    
 
             </tr>
-
+            {% empty %}
+            <tr>
+                <td colspan="9" class="w-10 text-center"> There are no questions </th>
+            </tr> 
             {% endfor %}
 
         </tbody>

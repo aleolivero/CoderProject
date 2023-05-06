@@ -95,19 +95,19 @@ class Questions(models.Model):
     def statusFormat(self):
         if str(self.status) == 'open':
 
-            return format_html('<span style="color:green"> <b>{} </b></span>', str(self.status))
+            return format_html('<span class="badge text-bg-success">{}</span>', str(self.status))
 
         elif str(self.status) == 'closed':
-            return format_html('<span style="color:red"> <b>{} </b></span>', str(self.status))
+            return format_html('<span class="badge text-bg-secondary">{}</span>', str(self.status))
         
 
     def resultFormat(self):
         if str(self.result) == 'determined':
 
-            return format_html('<span style="color:green"> <b>{} </b></span>', str(self.result))
+            return format_html('<span class="badge text-bg-success">{}</span>', str(self.result))
 
         elif str(self.result) == 'undetermined':
-            return format_html('<span style="color:red"> <b>{} </b></span>', str(self.result))
+            return format_html('<span class="badge text-bg-secondary">{}</span>', str(self.result))
 
 
     def __str__(self,):

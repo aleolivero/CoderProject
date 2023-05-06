@@ -65,7 +65,10 @@
                                     <td class="col text-center">{{score.winner_answer.player.user}}</td>
                                     <td class="col text-center">{{score.points}}</td>
                                 </tr>
-                    
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="w-10 text-center"> There are no scores </th>
+                                </tr> 
                                 {% endfor %}
                     
                             </tbody>

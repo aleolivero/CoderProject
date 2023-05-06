@@ -88,6 +88,19 @@
                         <a class="nav-link" href="{% url 'signin' %}">Sign In</a>
                     </li>
                     {% else %}
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="{% url 'view' %}">
+                            <i class="fas fa-comments"></i>
+                            {% if chats_not_read_ids %}
+                            <span class="position-absolute top-10 start-90 translate-middle badge rounded-pill bg-danger">
+                                {{chats_not_read_ids}}
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                            
+                            {% endif %}
+
+                        </a>
+                    </li>
                     <li class="nav-item ">
                         {% if request.user.players.image %}
                             <img src="{{request.user.players.image.url}}" class="img-fluid pt-1 me-1" style="max-height: 40px;">
@@ -103,7 +116,7 @@
                         <a class="nav-link" href="{% url 'editAccount' %}">Edit Account</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{% url 'signout' %}">Sign Out</a>
+                        <a class="nav-link" href="{% url 'signout' %}"><i class="fa-solid fa-right-from-bracket"></i></a>
                     </li>        
                     {% endif %}
                 </ul>
@@ -157,9 +170,14 @@
         <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
             ><i class="fab fa-github"></i
         ></a>
+        <a class="btn btn-outline-light btn-floating m-1" href="{% url 'about' %}" role="button"
+        ><i class="fas fa-user-astronaut"></i> About me!
+        </a>
         </section>
+    </section>
         <!-- Section: Social media -->
     </div>
+    
     <!-- Grid container -->
     
     <!-- Copyright -->

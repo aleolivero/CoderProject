@@ -23,5 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('Coder/',include('Coder.urls')),
+    path('exchange/',include('exchange.urls')),
+
 
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
