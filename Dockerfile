@@ -5,12 +5,12 @@ RUN ln -s /usr/bin/python3.8 /usr/bin/python3 || true
 
 RUN ln -s /usr/bin/pip3.8 /usr/bin/pip3 || true
 
-ARG SQLITE_VERSION=3360000
-RUN yum -y install wget
-RUN wget https://www.sqlite.org/2023/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
-RUN tar xvfz sqlite-autoconf-${SQLITE_VERSION}.tar.gz
-RUN cd sqlite-autoconf-${SQLITE_VERSION} && ./configure --prefix=/usr && make && make install
-RUN sqlite3 --version
+RUN wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release -O sqlite.tar.gz && \
+    tar xzf sqlite.tar.gz && \
+    cd sqlite && \
+    ./configure && \
+    make && \
+    make install
 
 WORKDIR /app
 
