@@ -9,7 +9,7 @@ RUN yum groupinstall -y "Development Tools" && \
     yum install -y wget && \
     wget https://www.sqlite.org/src/tarball/sqlite-amalgamation-3360000.tar.gz && \
     tar xzf sqlite-amalgamation-3360000.tar.gz && \
-    cd sqlite-amalgamation-3360000 && \
+    cd sqlite-*/ && \
     gcc shell.c sqlite3.c -lpthread -ldl -o sqlite3 && \
     mv sqlite3 /usr/local/bin/
 
