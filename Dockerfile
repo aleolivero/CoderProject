@@ -4,15 +4,9 @@ RUN yum install -y amazon-linux-extras && amazon-linux-extras install -y python3
 RUN ln -s /usr/bin/python3.8 /usr/bin/python3 || true
 RUN ln -s /usr/bin/pip3.8 /usr/bin/pip3 || true
 
-# Instala las dependencias necesarias para compilar SQLite y descarga el archivo
-RUN yum groupinstall -y "Development Tools" && \
-    yum install -y wget && \
-    wget https://www.sqlite.org/src/tarball/sqlite.tar.gz?r=release -O sqlite.tar.gz && \
-    tar xzf sqlite.tar.gz && \
-    cd sqlite && \
-    ./configure && \
-    make && \
-    make install
+# Instalar el repositorio EPEL y actualizar SQLite
+RUN yum install -y epel-release && \
+    yum update -y sqlite
 
 WORKDIR /app
 
