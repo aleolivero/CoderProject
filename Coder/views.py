@@ -388,6 +388,8 @@ def questionsPlayer_add(request):
             _author = Players.objects.get(user=request.user)
             # _status = form.cleaned_data['status']
             _event = form.cleaned_data['event']
+            _question_rule = form.cleaned_data['question_rule']
+
 
             _newQuestion = Questions(
                 title = _title,
@@ -397,6 +399,7 @@ def questionsPlayer_add(request):
                 date = _date,
                 author = _author,
                 event = _event,
+                question_rule = _question_rule
                 )
 
             _newQuestion.save()
@@ -475,6 +478,7 @@ def questionsPlayer_edit(request, id):
             _question.date = form.cleaned_data['date']
             _question.author = Players.objects.get(user=request.user)
             _question.event = form.cleaned_data['event']
+            _question.question_rule = form.cleaned_data['question_rule']
             _question.save()
 
             return redirect(reverse('questionsPlayerView'))

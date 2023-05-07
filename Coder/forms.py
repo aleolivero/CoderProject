@@ -79,6 +79,7 @@ class FormQuestionsPlayers(ModelForm):
             'date',
             'correct_answer', 
             # 'author',
+            'question_rule',
             'event',
             # 'status',
         ]
